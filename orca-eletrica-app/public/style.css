@@ -559,7 +559,6 @@ section h2::after {
     height: 100%;
     overflow: auto; /* Habilita scroll se necessário */
     background-color: rgba(0, 0, 0, 0.6); /* Fundo escuro semitransparente */
-    display: flex;
     justify-content: center;
     align-items: center;
 }
@@ -600,6 +599,19 @@ section h2::after {
 }
 
 /* Estilos de formulário dentro do modal */
+.modal {
+    display: none; /* Escondido por padrão, JavaScript vai mudar para flex */
+    position: fixed; /* Fixo na tela, não rola com o conteúdo */
+    z-index: 2000; /* Acima de todo o conteúdo da página */
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto; /* Habilita scroll dentro do modal se o conteúdo for muito grande */
+    background-color: rgba(0, 0, 0, 0.6); /* Fundo escuro semitransparente */
+    justify-content: center; /* Centraliza horizontalmente o conteúdo do modal */
+    align-items: center; /* Centraliza verticalmente o conteúdo do modal */
+}
 .modal .form-group { margin-bottom: 18px; }
 .modal label { display: block; margin-bottom: 8px; font-weight: 600; color: #4a4a4a; font-size: 0.95em; }
 .modal input[type="text"],
@@ -773,4 +785,195 @@ section h2::after {
     .plan-card h3 {
         font-size: 1.5em;
     }
+    /* --- Estilos da Página de Gerenciamento de Serviços/Materiais --- */
+.services-materials-container {
+    padding: 40px 20px;
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: var(--box-shadow-light);
+    margin-top: 30px;
+    margin-bottom: 30px;
+}
+
+.services-materials-container h1 {
+    text-align: center;
+    margin-bottom: 15px;
+    color: var(--text-color-dark);
+}
+
+.subtitle-page {
+    text-align: center;
+    font-size: 1.1em;
+    color: #666;
+    margin-bottom: 40px;
+}
+
+.tabs-container {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 30px;
+    border-bottom: 2px solid var(--background-light);
+}
+
+.tab-button {
+    background-color: transparent;
+    border: none;
+    padding: 15px 25px;
+    font-size: 1.1em;
+    font-weight: bold;
+    color: #555;
+    cursor: pointer;
+    border-bottom: 3px solid transparent;
+    transition: all var(--transition-speed);
+}
+
+.tab-button:hover {
+    color: var(--primary-color);
+}
+
+.tab-button.active {
+    color: var(--primary-color);
+    border-bottom: 3px solid var(--primary-color);
+}
+
+.tab-content {
+    display: none; /* Escondido por padrão, JS vai mostrar */
+    padding: 20px 0;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+.tab-content h2 {
+    font-size: 1.8em;
+    color: var(--primary-color);
+    margin-bottom: 25px;
+    text-align: left;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 10px;
+}
+
+.item-form {
+    background-color: #f9f9f9;
+    padding: 25px;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    margin-bottom: 30px;
+    text-align: left;
+}
+
+.item-form .form-group {
+    margin-bottom: 15px;
+}
+
+.item-form label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+    color: #4a4a4a;
+}
+
+.item-form input[type="text"],
+.item-form input[type="number"],
+.item-form textarea {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid var(--border-color);
+    border-radius: 5px;
+    font-size: 1em;
+    box-sizing: border-box;
+}
+
+.item-form button[type="submit"] {
+    width: auto;
+    margin-right: 10px;
+    padding: 10px 20px;
+    font-size: 1em;
+}
+
+.item-list-table {
+    margin-top: 30px;
+    overflow-x: auto; /* Permite rolagem horizontal em tabelas pequenas */
+}
+
+.item-list-table table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.item-list-table th, .item-list-table td {
+    border: 1px solid #ddd;
+    padding: 12px;
+    text-align: left;
+    font-size: 0.95em;
+}
+
+.item-list-table th {
+    background-color: var(--background-light);
+    color: var(--text-color-dark);
+    font-weight: bold;
+}
+
+.item-list-table tr:nth-child(even) {
+    background-color: #f2f2f2;
+}
+
+.item-list-table td:last-child {
+    white-space: nowrap; /* Impede que os botões quebrem linha */
+}
+
+.item-list-table button {
+    margin-right: 5px;
+    padding: 8px 12px;
+    font-size: 0.85em;
+    border-radius: 4px;
+}
+
+.btn-small {
+    padding: 8px 12px;
+    font-size: 0.85em;
+}
+
+.btn-danger {
+    background-color: #dc3545;
+    color: white;
+}
+.btn-danger:hover {
+    background-color: #c82333;
+}
+
+.empty-list-message {
+    text-align: center;
+    color: #777;
+    font-style: italic;
+    padding: 20px;
+    border: 1px dashed #ddd;
+    border-radius: 5px;
+    margin-top: 20px;
+}
+
+/* Back to Dashboard Button */
+.services-materials-container .back-btn {
+    margin-top: 40px;
+    display: inline-block;
+}
+
+/* Media Queries para a Página de Gerenciamento */
+@media (max-width: 768px) {
+    .services-materials-container {
+        padding: 20px;
+    }
+    .tab-button {
+        padding: 10px 15px;
+        font-size: 1em;
+    }
+    .item-form {
+        padding: 20px;
+    }
+    .item-list-table th, .item-list-table td {
+        padding: 8px;
+        font-size: 0.85em;
+    }
+}
 }

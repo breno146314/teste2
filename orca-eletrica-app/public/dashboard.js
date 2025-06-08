@@ -54,7 +54,24 @@ auth.onAuthStateChanged(async (user) => {
         redirectToLogin();
     }
 });
+// --- Event Listeners para os Novos Cards de Navegação ---
+manageServicesCard.addEventListener('click', () => {
+    window.location.href = '/manage-services.html'; // PÁGINA CRIADA AGORA!
+});
 
+createQuotationCard.addEventListener('click', () => {
+    alert('Funcionalidade de Criar Novo Orçamento em construção!');
+    // window.location.href = '/create-quotation.html'; // Futura página
+});
+
+viewQuotationsCard.addEventListener('click', () => {
+    alert('Funcionalidade de Meus Orçamentos em construção!');
+    // window.location.href = '/view-quotations.html'; // Futura página
+});
+
+accountSettingsCard.addEventListener('click', () => {
+    window.location.href = '/profile.html'; // Já criada no passo anterior
+});
 // --- Lógica de Logout ---
 logoutButton.addEventListener('click', async () => {
     try {

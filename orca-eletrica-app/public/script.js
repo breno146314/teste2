@@ -1,18 +1,15 @@
-// Cole a configuração do seu projeto Firebase aqui
-// Você encontra isso no console do Firebase:
-// Configurações do Projeto (ícone de engrenagem) -> Geral -> "Seus apps" (Web)
+// public/script.js
 
-//import { initializeApp } from "firebase/app";
-//import { getAnalytics } from "firebase/analytics";
+// Cole a configuração do seu projeto Firebase aqui
+// Certifique-se de que é a mesma que você usou em dashboard.js
 const firebaseConfig = {
-   apiKey: "AIzaSyBvFAdgyg9ns3qo4ENSR0TATy1QdMGfgCI",
-  authDomain: "orca-eleltrica.firebaseapp.com",
-  projectId: "orca-eleltrica",
-  storageBucket: "orca-eleltrica.firebasestorage.app",
-  messagingSenderId: "48836864931",
-  appId: "1:48836864931:web:9b1dc4579ebd254b570816",
-  measurementId: "G-1XXEHV4E69"
-  //measurementId: "SEU_MEASUREMENT_ID" // Opcional, se usar Analytics
+    apiKey: "AIzaSyBvFAdgyg9ns3qo4ENSR0TATy1QdMGfgCI", // SEU_API_KEY
+    authDomain: "orca-eleltrica.firebaseapp.com",     // SEU_AUTH_DOMAIN
+    projectId: "orca-eleltrica",                      // SEU_PROJECT_ID
+    storageBucket: "orca-eleltrica.firebasestorage.app", // SEU_STORAGE_BUCKET
+    messagingSenderId: "48836864931",                 // SEU_MESSAGING_SENDER_ID
+    appId: "1:48836864931:web:9b1dc4579ebd254b570816",   // SEU_APP_ID
+    measurementId: "G-1XXEHV4E69"                     // SEU_MEASUREMENT_ID (se habilitado)
 };
 
 // Inicializa o Firebase
@@ -21,15 +18,19 @@ firebase.initializeApp(firebaseConfig);
 // Obtém instâncias dos serviços que vamos usar
 const auth = firebase.auth();
 const db = firebase.firestore();
-// Initialize Firebase
-//const app = initializeApp(firebaseConfig);
-//const analytics = getAnalytics(app);
 
-// --- Elementos HTML ---
-const showRegisterBtn = document.getElementById('showRegister');
-const showLoginBtn = document.getElementById('showLogin');
-const registerSection = document.getElementById('registerSection');
-const loginSection = document.getElementById('loginSection');
+// --- Elementos HTML da Landing Page e Modais ---
+const loginModal = document.getElementById('loginModal');
+const registerModal = document.getElementById('registerModal');
+
+const openLoginModalBtn = document.getElementById('openLoginModal');
+const openRegisterModalBtn = document.getElementById('openRegisterModal');
+const heroRegisterBtn = document.getElementById('heroRegisterBtn');
+const ctaRegisterBtnFree = document.getElementById('ctaRegisterBtnFree');
+const ctaRegisterBtnPro = document.getElementById('ctaRegisterBtnPro');
+const heroDemoBtn = document.getElementById('heroDemoBtn'); // Para uma futura demo
+
+const closeButtons = document.querySelectorAll('.close-button'); // Botões de fechar dos modais
 
 const registerForm = document.getElementById('registerForm');
 const loginForm = document.getElementById('loginForm');
@@ -37,37 +38,63 @@ const loginForm = document.getElementById('loginForm');
 const registerMessage = document.getElementById('registerMessage');
 const loginMessage = document.getElementById('loginMessage');
 
-// --- Funções de UI (Alternar entre Cadastro e Login) ---
-function showSection(sectionToShow, activeBtn) {
-    // Esconde todas as seções e remove a classe 'active' de todos os botões
-    document.querySelectorAll('.auth-section').forEach(section => {
-        section.classList.remove('active');
-    });
-    document.querySelectorAll('.toggle-buttons button').forEach(btn => {
-        btn.classList.remove('active');
-    });
+// --- Funções de UI (Modais) ---
+function openModal(modal) { // Antes de abrir, garanta que qualquer outro modal esteja fechado
+    if (modal === loginModal) {
+        closeModal(registerModal); // Se for abrir o login, feche o cadastro
+    } else if (modal === registerModal) {
+        closeModal(loginModal); // Se for abrir o cadastro, feche o login
+    }
 
-    // Mostra a seção desejada e ativa o botão correspondente
-    sectionToShow.classList.add('active');
-    activeBtn.classList.add('active');
+    modal.style.display = 'flex'; // Exibe o modal (usando flex para centralizar)
+    document.body.style.overflow = 'hidden'; // Evita scroll do body por baixo
 
-    // Limpa mensagens e formulários ao alternar
-    registerMessage.textContent = '';
-    loginMessage.textContent = '';
-    registerMessage.className = 'message';
-    loginMessage.className = 'message';
-    registerForm.reset();
-    loginForm.reset();
 }
 
-// Event Listeners para os botões de alternância
-showRegisterBtn.addEventListener('click', () => showSection(registerSection, showRegisterBtn));
-showLoginBtn.addEventListener('click', () => showSection(loginSection, showLoginBtn));
+function closeModal(modal) {
+    if (modal) { // Verifica se o modal existe antes de tentar fechar
+        modal.style.display = 'none'; // Esconde o modal
+        // Somente restaura o scroll se nenhum outro modal estiver aberto
+        if (loginModal.style.display === 'none' && registerModal.style.display === 'none') {
+            document.body.style.overflow = '';
+        }
+        // Limpa mensagens e formulários ao fechar
+        registerMessage.textContent = '';
+        loginMessage.textContent = '';
+        registerMessage.className = 'message';
+        loginMessage.className = 'message';
+        registerForm.reset();
+        loginForm.reset();
+    }
+}
 
-// Inicialmente, mostra a seção de cadastro
-showSection(registerSection, showRegisterBtn);
+// Event Listeners para abrir modais
+openLoginModalBtn.addEventListener('click', () => openModal(loginModal));
+openRegisterModalBtn.addEventListener('click', () => openModal(registerModal));
+heroRegisterBtn.addEventListener('click', () => openModal(registerModal));
+ctaRegisterBtnFree.addEventListener('click', () => openModal(registerModal));
+ctaRegisterBtnPro.addEventListener('click', () => {
+    alert('Funcionalidade de Plano Pro em construção! Por enquanto, cadastre-se no plano Grátis.');
+    openModal(registerModal);
+});
 
-// --- Lógica de Cadastro de Usuário ---
+// Event Listeners para fechar modais (botão X e clique fora)
+closeButtons.forEach(button => {
+    button.addEventListener('click', (event) => {
+        closeModal(event.target.closest('.modal'));
+    });
+});
+
+window.addEventListener('click', (event) => {
+    if (event.target == loginModal) {
+        closeModal(loginModal);
+    }
+    if (event.target == registerModal) {
+        closeModal(registerModal);
+    }
+});
+
+// --- Lógica de Cadastro de Usuário (dentro do modal) ---
 registerForm.addEventListener('submit', async function(event) {
     event.preventDefault();
 
@@ -95,12 +122,10 @@ registerForm.addEventListener('submit', async function(event) {
         const user = userCredential.user;
 
         // 2. Armazenar dados adicionais (username) no Cloud Firestore
-        // O UID do usuário do Authentication é usado como ID do documento no Firestore
         await db.collection('users').doc(user.uid).set({
             username: username,
             email: email,
-            createdAt: firebase.firestore.FieldValue.serverTimestamp(), // Timestamp do servidor
-            // Adicione outros campos padrão se precisar, ex: roles: ['user']
+            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
         });
 
         registerMessage.textContent = 'Cadastro realizado com sucesso! Redirecionando...';
@@ -109,8 +134,8 @@ registerForm.addEventListener('submit', async function(event) {
         // Limpa o formulário e redireciona após um pequeno atraso
         registerForm.reset();
         setTimeout(() => {
-            // Após o cadastro, idealmente redirecionar para uma página de dashboard
-            window.location.href = '/dashboard.html';
+            closeModal(registerModal); // Fecha o modal
+            window.location.href = '/dashboard.html'; // Redireciona para o dashboard
         }, 2000);
 
     } catch (error) {
@@ -128,7 +153,7 @@ registerForm.addEventListener('submit', async function(event) {
     }
 });
 
-// --- Lógica de Login de Usuário ---
+// --- Lógica de Login de Usuário (dentro do modal) ---
 loginForm.addEventListener('submit', async function(event) {
     event.preventDefault();
 
@@ -147,8 +172,8 @@ loginForm.addEventListener('submit', async function(event) {
         // Limpa o formulário e redireciona após um pequeno atraso
         loginForm.reset();
         setTimeout(() => {
-            // Após o login, redirecionar para a página de dashboard
-            window.location.href = '/dashboard.html';
+            closeModal(loginModal); // Fecha o modal
+            window.location.href = '/dashboard.html'; // Redireciona para o dashboard
         }, 2000);
 
     } catch (error) {
@@ -164,26 +189,37 @@ loginForm.addEventListener('submit', async function(event) {
     }
 });
 
-
-// --- Lógica de Verificação de Estado de Autenticação (Para proteger rotas) ---
-// É importante ter uma forma de verificar se o usuário está logado ao carregar qualquer página.
-// No seu dashboard.html (que vamos criar) você faria algo parecido.
+// --- Lógica de Proteção de Rota (para a Landing Page) ---
+// Se o usuário já estiver logado e tentar acessar a LP, redireciona para o dashboard
 auth.onAuthStateChanged(user => {
     if (user) {
-        // Usuário está logado (ex: redirecionar para dashboard se estiver na página de login/cadastro)
-        console.log('Usuário logado:', user.email, user.uid);
-        // Se a página atual for index.html (login/cadastro) e o usuário estiver logado,
-        // pode ser interessante redirecioná-lo para o dashboard automaticamente.
+        console.log('Usuário logado na Landing Page:', user.email, user.uid);
+        // Redireciona para o dashboard se já estiver logado e não for o dashboard
         if (window.location.pathname === '/' || window.location.pathname === '/index.html') {
-             // window.location.href = '/dashboard.html'; // Descomente para ativar o redirecionamento automático
+             window.location.href = '/dashboard.html';
         }
     } else {
-        // Usuário não está logado
-        console.log('Nenhum usuário logado.');
-        // Se a página atual for uma página protegida (ex: dashboard) e o usuário não estiver logado,
-        // você deve redirecioná-lo para a página de login.
-        if (window.location.pathname === '/dashboard.html') {
-            // window.location.href = '/index.html'; // Descomente para ativar o redirecionamento de volta ao login
-        }
+        console.log('Nenhum usuário logado na Landing Page.');
+        // Se estiver no dashboard sem login, o dashboard.js vai redirecionar
     }
+});
+
+// --- Smooth Scrolling para Links de Navegação ---
+document.querySelectorAll('.scroll-link').forEach(link => {
+    link.addEventListener('click', function(e) {
+        e.preventDefault();
+        const targetId = this.getAttribute('href');
+        const targetElement = document.querySelector(targetId);
+        if (targetElement) {
+            window.scrollTo({
+                top: targetElement.offsetTop - 80, // Ajuste para o header fixo
+                behavior: 'smooth'
+            });
+        }
+    });
+});
+
+// --- Placeholder para botão de demonstração (futuramente) ---
+heroDemoBtn.addEventListener('click', () => {
+    alert('A demonstração interativa está em construção! Fique ligado.');
 });

@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Serviços e Materiais - OrçaElétrica</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" href="images/favicon.png" type="image/png">
+</head>
+<body>
+    <div class="container services-materials-container">
+        <h1>Gerenciar Serviços e Materiais</h1>
+        <p class="subtitle-page">Cadastre e organize todos os serviços e materiais que você utiliza em seus orçamentos.</p>
+
+        <div class="tabs-container">
+            <button class="tab-button active" data-tab="services">Serviços</button>
+            <button class="tab-button" data-tab="materials">Materiais</button>
+        </div>
+
+        <div id="servicesTab" class="tab-content active">
+            <h2>Meus Serviços</h2>
+            <form id="serviceForm" class="item-form">
+                <input type="hidden" id="serviceId">
+                <div class="form-group">
+                    <label for="serviceName">Nome do Serviço:</label>
+                    <input type="text" id="serviceName" required>
+                </div>
+                <div class="form-group">
+                    <label for="serviceDescription">Descrição (opcional):</label>
+                    <textarea id="serviceDescription" rows="2"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="serviceUnit">Unidade de Medida:</label>
+                    <input type="text" id="serviceUnit" placeholder="Ex: Ponto, Hora, Unidade, Metro" required>
+                </div>
+                <div class="form-group">
+                    <label for="servicePrice">Preço por Unidade (R$):</label>
+                    <input type="number" id="servicePrice" step="0.01" min="0" required>
+                </div>
+                <button type="submit" class="btn btn-primary">Adicionar Serviço</button>
+                <button type="button" id="cancelServiceEdit" class="btn btn-secondary" style="display:none;">Cancelar Edição</button>
+                <p id="serviceMessage" class="message"></p>
+            </form>
+
+            <h3>Lista de Serviços</h3>
+            <div class="item-list-table">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Nome</th>
+                            <th>Unidade</th>
+                            <th>Preço (R$)</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="servicesList">
+                        <tr><td colspan="4">Carregando serviços...</td></tr>
+                    </tbody>
+                </table>
+                <p id="noServicesMessage" class="empty-list-message" style="display:none;">Nenhum serviço cadastrado ainda. Adicione um acima!</p>
+            </div>
+        </div>
+
+        <div id="materialsTab" class="tab-content">
+            <h2>Meus Materiais</h2>
+            <form id="materialForm" class="item-form">
+                <input type="hidden" id="materialId">
+                <div class="form-group">
+                    <label for="materialName">Nome do Material:</label>
+                    <input type="text" id="materialName" required>
+                </div>
+                <div class="form-group">
+                    <label for="materialDescription">Descrição (opcional):</label>
+                    <textarea id="materialDescription" rows="2"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="materialUnit">Unidade de Medida:</label>
+                    <input type="text" id="materialUnit" placeholder="Ex: Unidade, Metro, Rolo" required>
+                </div>
+                <div class="form-group">
+                    <label for="materialPrice">Preço por Unidade (R$):</label>
+                    <input type="number" id="materialPrice" step="0.01" min="0" required>
+                </div>
+                <button type="submit" class="btn btn-primary">Adicionar Material</button>
+                <button type="button" id="cancelMaterialEdit" class="btn btn-secondary" style="display:none;">Cancelar Edição</button>
+                <p id="materialMessage" class="message"></p>
+            </form>
+
+            <h3>Lista de Materiais</h3>
+            <div class="item-list-table">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Nome</th>
+                            <th>Unidade</th>
+                            <th>Preço (R$)</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="materialsList">
+                        <tr><td colspan="4">Carregando materiais...</td></tr>
+                    </tbody>
+                </table>
+                <p id="noMaterialsMessage" class="empty-list-message" style="display:none;">Nenhum material cadastrado ainda. Adicione um acima!</p>
+            </div>
+        </div>
+        
+        <button id="backToDashboard" class="btn btn-secondary back-btn">Voltar para o Dashboard</button>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+
+    <script src="manage-services.js"></script>
+</body>
+</html>
