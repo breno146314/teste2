@@ -1,13 +1,19 @@
 // Cole a configuração do seu projeto Firebase aqui
 // Você encontra isso no console do Firebase:
 // Configurações do Projeto (ícone de engrenagem) -> Geral -> "Seus apps" (Web)
+
+import { initializeApp } from "firebase/app";
+import { getAnalytics } from "firebase/analytics";
+
+
 const firebaseConfig = {
-  apiKey: "SUA_API_KEY",
-  authDomain: "SEU_AUTH_DOMAIN",
-  projectId: "SEU_PROJECT_ID",
-  storageBucket: "SEU_STORAGE_BUCKET",
-  messagingSenderId: "SEU_MESSAGING_SENDER_ID",
-  appId: "SEU_APP_ID",
+   apiKey: "AIzaSyBvFAdgyg9ns3qo4ENSR0TATy1QdMGfgCI",
+  authDomain: "orca-eleltrica.firebaseapp.com",
+  projectId: "orca-eleltrica",
+  storageBucket: "orca-eleltrica.firebasestorage.app",
+  messagingSenderId: "48836864931",
+  appId: "1:48836864931:web:9b1dc4579ebd254b570816",
+  measurementId: "G-1XXEHV4E69"
   //measurementId: "SEU_MEASUREMENT_ID" // Opcional, se usar Analytics
 };
 
@@ -15,8 +21,9 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 
 // Obtém instâncias dos serviços que vamos usar
-const auth = firebase.auth();
-const db = firebase.firestore();
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const analytics = getAnalytics(app);
 
 // --- Elementos HTML ---
 const showRegisterBtn = document.getElementById('showRegister');
