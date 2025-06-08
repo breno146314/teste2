@@ -2,10 +2,8 @@
 // Você encontra isso no console do Firebase:
 // Configurações do Projeto (ícone de engrenagem) -> Geral -> "Seus apps" (Web)
 
-import { initializeApp } from "firebase/app";
-import { getAnalytics } from "firebase/analytics";
-
-
+//import { initializeApp } from "firebase/app";
+//import { getAnalytics } from "firebase/analytics";
 const firebaseConfig = {
    apiKey: "AIzaSyBvFAdgyg9ns3qo4ENSR0TATy1QdMGfgCI",
   authDomain: "orca-eleltrica.firebaseapp.com",
@@ -21,9 +19,11 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 
 // Obtém instâncias dos serviços que vamos usar
+const auth = firebase.auth();
+const db = firebase.firestore();
 // Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const analytics = getAnalytics(app);
+//const app = initializeApp(firebaseConfig);
+//const analytics = getAnalytics(app);
 
 // --- Elementos HTML ---
 const showRegisterBtn = document.getElementById('showRegister');
