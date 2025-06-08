@@ -3,61 +3,250 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>OrçaElétrica - Login e Cadastro</title>
+    <meta name="description" content="OrçaElétrica: A solução definitiva para eletricistas gerarem orçamentos profissionais em PDF de forma rápida e eficiente. Automatize sua precificação, aumente sua produtividade e feche mais negócios.">
+    <meta name="keywords" content="orçamento elétrico, eletricista, precificação de serviços, gerar orçamento PDF, software para eletricistas, ferramenta de orçamento, orçamento online, eletricidade, instalações elétricas, gestão de orçamentos">
+    <meta name="author" content="Seu Nome/Nome da Empresa">
+    <meta property="og:title" content="OrçaElétrica - Orçamentos Profissionais para Eletricistas">
+    <meta property="og:description" content="Automatize sua precificação, aumente sua produtividade e feche mais negócios com a OrçaElétrica.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://orca-eletrica.web.app/"> <meta property="og:image" content="https://orca-eletrica.web.app/images/social-share.jpg"> <link rel="canonical" href="https://orca-eletrica.web.app/"> <title>OrçaElétrica - Orçamentos Profissionais e Rápidos para Eletricistas</title>
     <link rel="stylesheet" href="style.css">
+    <link rel="icon" href="images/favicon.png" type="image/png">
 </head>
 <body>
-    <div class="container">
-        <div class="toggle-buttons">
-            <button id="showRegister">Cadastrar</button>
-            <button id="showLogin">Entrar</button>
-        </div>
 
-        <div id="registerSection" class="auth-section active">
-            <h1>Cadastre-se na OrçaElétrica</h1>
-            <form id="registerForm">
-                <div class="form-group">
-                    <label for="regUsername">Nome de Usuário:</label>
-                    <input type="text" id="regUsername" name="username" required minlength="3">
-                </div>
-                <div class="form-group">
-                    <label for="regEmail">Email:</label>
-                    <input type="email" id="regEmail" name="email" required>
-                </div>
-                <div class="form-group">
-                    <label for="regPassword">Senha:</label>
-                    <input type="password" id="regPassword" name="password" required minlength="8">
-                </div>
-                <div class="form-group">
-                    <label for="regConfirmPassword">Confirmar Senha:</label>
-                    <input type="password" id="regConfirmPassword" name="confirmPassword" required>
-                </div>
-                <button type="submit">Cadastrar</button>
-                <p id="registerMessage" class="message"></p>
-            </form>
+    <header class="main-header">
+        <div class="header-content container">
+            <div class="logo">
+                <a href="#hero-section">OrçaElétrica</a>
+            </div>
+            <nav class="main-nav">
+                <ul>
+                    <li><a href="#hero-section" class="scroll-link">Início</a></li>
+                    <li><a href="#features-section" class="scroll-link">Funcionalidades</a></li>
+                    <li><a href="#testimonials-section" class="scroll-link">Depoimentos</a></li>
+                    <li><a href="#cta-section" class="scroll-link">Planos</a></li>
+                    <li><a href="#contact-section" class="scroll-link">Contato</a></li>
+                </ul>
+            </nav>
+            <div class="auth-buttons">
+                <button id="openLoginModal" class="btn btn-secondary">Entrar</button>
+                <button id="openRegisterModal" class="btn btn-primary">Cadastre-se Grátis</button>
+            </div>
         </div>
+    </header>
 
-        <div id="loginSection" class="auth-section">
-            <h1>Entre na OrçaElétrica</h1>
-            <form id="loginForm">
-                <div class="form-group">
-                    <label for="loginEmail">Email:</label>
-                    <input type="email" id="loginEmail" name="email" required>
+    <section id="hero-section" class="hero-section">
+        <div class="container hero-content">
+            <h1>Precifique e Gere Orçamentos Elétricos em PDF, em Minutos!</h1>
+            <p class="subtitle">Aumente sua produtividade e profissionalismo. Diga adeus aos orçamentos demorados e fechados no papel.</p>
+            <div class="hero-cta">
+                <button id="heroRegisterBtn" class="btn btn-primary btn-large">Comece Grátis Agora!</button>
+                <button id="heroDemoBtn" class="btn btn-secondary btn-large">Ver Demonstração</button>
+            </div>
+            <div class="hero-image">
+                <img src="images/dashboard-mockup.png" alt="Mockup da interface do OrçaElétrica em um tablet" title="Interface da OrçaElétrica" loading="eager">
+            </div>
+        </div>
+    </section>
+
+    <section id="problem-solution-section" class="problem-solution-section">
+        <div class="container">
+            <h2>Você ainda gasta horas fazendo orçamentos?</h2>
+            <div class="problem-solution-grid">
+                <div class="problem">
+                    <h3>O Problema Atual</h3>
+                    <ul>
+                        <li><i class="icon-clock"></i> Orçamentos manuais consomem tempo valioso.</li>
+                        <li><i class="icon-error"></i> Erros de cálculo e esquecimento de itens.</li>
+                        <li><i class="icon-paper"></i> Dificuldade em gerar documentos profissionais.</li>
+                        <li><i class="icon-lost"></i> Perda de negócios por demora ou falta de padronização.</li>
+                    </ul>
                 </div>
-                <div class="form-group">
-                    <label for="loginPassword">Senha:</label>
-                    <input type="password" id="loginPassword" name="password" required>
+                <div class="solution">
+                    <h3>A Solução OrçaElétrica</h3>
+                    <ul>
+                        <li><i class="icon-rocket"></i> Agilidade na precificação de serviços e materiais.</li>
+                        <li><i class="icon-check"></i> Cálculos automáticos e precisos.</li>
+                        <li><i class="icon-pdf"></i> Geração de orçamentos em PDF com sua logo.</li>
+                        <li><i class="icon-growth"></i> Mais profissionalismo, mais orçamentos fechados!</li>
+                    </ul>
                 </div>
-                <button type="submit">Entrar</button>
-                <p id="loginMessage" class="message"></p>
-                <p class="forgot-password"><a href="#">Esqueceu a senha?</a></p>
-            </form>
+            </div>
+        </div>
+    </section>
+
+    <section id="features-section" class="features-section">
+        <div class="container">
+            <h2>Recursos que Vão Transformar Seu Dia a Dia</h2>
+            <div class="features-grid">
+                <div class="feature-item">
+                    <i class="icon-price"></i>
+                    <h3>Precificação Inteligente</h3>
+                    <p>Cadastre seus serviços e materiais com valores e unidades, e a OrçaElétrica calcula tudo para você.</p>
+                </div>
+                <div class="feature-item">
+                    <i class="icon-pdf-gen"></i>
+                    <h3>Orçamentos em PDF Profissionais</h3>
+                    <p>Gere documentos personalizados com sua logo e informações de contato em poucos cliques.</p>
+                </div>
+                <div class="feature-item">
+                    <i class="icon-mobile"></i>
+                    <h3>Acesso de Qualquer Lugar</h3>
+                    <p>Sua plataforma na palma da mão! Acesse e crie orçamentos do celular, tablet ou computador.</p>
+                </div>
+                <div class="feature-item">
+                    <i class="icon-history"></i>
+                    <h3>Histórico de Orçamentos</h3>
+                    <p>Mantenha um registro organizado de todos os seus orçamentos e clientes para referência futura.</p>
+                </div>
+                <div class="feature-item">
+                    <i class="icon-edit"></i>
+                    <h3>Edição Flexível</h3>
+                    <p>Adicione descontos, observações e condições de pagamento específicas para cada cliente.</p>
+                </div>
+                <div class="feature-item">
+                    <i class="icon-secure"></i>
+                    <h3>Segurança e Confiabilidade</h3>
+                    <p>Seus dados seguros na nuvem com a tecnologia do Google Firebase. Foco no seu trabalho, não na infraestrutura.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="testimonials-section" class="testimonials-section">
+        <div class="container">
+            <h2>O Que Nossos Clientes Dizem</h2>
+            <div class="testimonial-carousel">
+                <div class="testimonial-item">
+                    <p>"A OrçaElétrica mudou a forma como eu trabalho! Gero orçamentos em minutos e meus clientes ficam impressionados."</p>
+                    <span>- João Silva, Eletricista Autônomo</span>
+                </div>
+                <div class="testimonial-item">
+                    <p>"Extremamente fácil de usar e me ajudou a organizar minhas finanças. Recomendo para todos os eletricistas."</p>
+                    <span>- Maria Santos, Proprietária da EletroSol</span>
+                </div>
+                </div>
+        </div>
+    </section>
+
+    <section id="cta-section" class="cta-section">
+        <div class="container">
+            <h2>Pronto para Profissionalizar Seus Orçamentos?</h2>
+            <p>Comece a usar a OrçaElétrica hoje mesmo e transforme seu negócio!</p>
+            <div class="cta-options">
+                <div class="plan-card">
+                    <h3>Plano Grátis</h3>
+                    <p>Perfeito para começar!</p>
+                    <ul>
+                        <li><i class="icon-check"></i> 5 orçamentos/mês</li>
+                        <li><i class="icon-check"></i> Gerenciamento básico</li>
+                        <li><i class="icon-check"></i> Geração de PDF</li>
+                    </ul>
+                    <button id="ctaRegisterBtnFree" class="btn btn-primary">Comece Grátis!</button>
+                </div>
+                <div class="plan-card featured-plan">
+                    <h3>Plano Pro</h3>
+                    <p>Para quem busca crescer!</p>
+                    <ul>
+                        <li><i class="icon-check"></i> Orçamentos ilimitados</li>
+                        <li><i class="icon-check"></i> Relatórios avançados</li>
+                        <li><i class="icon-check"></i> Suporte prioritário</li>
+                        <li><i class="icon-check"></i> e muito mais...</li>
+                    </ul>
+                    <button id="ctaRegisterBtnPro" class="btn btn-primary">Quero o Plano Pro!</button>
+                </div>
+            </div>
+            <p class="guarantee">Experimente grátis por 7 dias, sem compromisso!</p>
+        </div>
+    </section>
+
+    <footer id="contact-section" class="main-footer">
+        <div class="container footer-content">
+            <div class="footer-col">
+                <h3>OrçaElétrica</h3>
+                <p>Automatizando o sucesso do eletricista.</p>
+                <div class="social-icons">
+                    <a href="#"><i class="icon-facebook"></i></a>
+                    <a href="#"><i class="icon-instagram"></i></a>
+                    <a href="#"><i class="icon-linkedin"></i></a>
+                </div>
+            </div>
+            <div class="footer-col">
+                <h3>Links Úteis</h3>
+                <ul>
+                    <li><a href="#hero-section" class="scroll-link">Início</a></li>
+                    <li><a href="#features-section" class="scroll-link">Funcionalidades</a></li>
+                    <li><a href="#">Política de Privacidade</a></li>
+                    <li><a href="#">Termos de Serviço</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h3>Contato</h3>
+                <p>Email: contato@orcaeletrica.com.br</p>
+                <p>Telefone: (XX) XXXX-XXXX</p>
+                <p>Endereço: Sua Cidade, Seu Estado</p>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2025 OrçaElétrica. Todos os direitos reservados.</p>
+        </div>
+    </footer>
+
+    <div id="loginModal" class="modal">
+        <div class="modal-content">
+            <span class="close-button">&times;</span>
+            <div class="auth-section active">
+                <h1>Entre na OrçaElétrica</h1>
+                <form id="loginForm">
+                    <div class="form-group">
+                        <label for="loginEmail">Email:</label>
+                        <input type="email" id="loginEmail" name="email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="loginPassword">Senha:</label>
+                        <input type="password" id="loginPassword" name="password" required>
+                    </div>
+                    <button type="submit">Entrar</button>
+                    <p id="loginMessage" class="message"></p>
+                    <p class="forgot-password"><a href="#">Esqueceu a senha?</a></p>
+                </form>
+            </div>
         </div>
     </div>
 
- <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+    <div id="registerModal" class="modal">
+        <div class="modal-content">
+            <span class="close-button">&times;</span>
+            <div class="auth-section active">
+                <h1>Cadastre-se Grátis</h1>
+                <form id="registerForm">
+                    <div class="form-group">
+                        <label for="regUsername">Nome de Usuário:</label>
+                        <input type="text" id="regUsername" name="username" required minlength="3">
+                    </div>
+                    <div class="form-group">
+                        <label for="regEmail">Email:</label>
+                        <input type="email" id="regEmail" name="email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="regPassword">Senha:</label>
+                        <input type="password" id="regPassword" name="password" required minlength="8">
+                    </div>
+                    <div class="form-group">
+                        <label for="regConfirmPassword">Confirmar Senha:</label>
+                        <input type="password" id="regConfirmPassword" name="confirmPassword" required>
+                    </div>
+                    <button type="submit">Cadastrar</button>
+                    <p id="registerMessage" class="message"></p>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 
     <script src="script.js"></script>
 </body>

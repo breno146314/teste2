@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - OrçaElétrica</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1 id="welcomeMessage">Carregando...</h1>
+        <p>Bem-vindo ao seu painel de controle da OrçaElétrica!</p>
+        <p>Aqui você poderá gerenciar seus serviços, materiais e criar orçamentos.</p>
+
+        <div class="dashboard-actions">
+            <button id="manageServicesBtn">Gerenciar Serviços/Materiais</button>
+            <button id="createQuotationBtn">Criar Novo Orçamento</button>
+            <button id="viewQuotationsBtn">Meus Orçamentos</button>
+        </div>
+
+        <button id="logoutButton" class="logout-btn">Sair</button>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+
+    <script src="dashboard.js"></script>
+</body>
+</html>
