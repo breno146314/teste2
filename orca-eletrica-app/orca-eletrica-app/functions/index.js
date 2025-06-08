@@ -10,6 +10,14 @@
 const {onRequest} = require("firebase-functions/v2/https");
 const logger = require("firebase-functions/logger");
 
+// Define e exporta sua função HTTP
+// O nome 'minhaPrimeiraFuncaoHTTP' será o nome da sua função no Firebase
+// Define e exporta sua função HTTP
+// O nome 'minhaPrimeiraFuncaoHTTP' será o nome da sua função no Firebase
+exports.minhaPrimeiraFuncaoHTTP = onRequest((request, response) => {
+  logger.info("Hello logs!", {structuredData: true}); // Exemplo de uso do logger
+  response.send("Olá do Firebase! Esta é sua primeira função HTTP v2.");
+});
 // Create and deploy your first functions
 // https://firebase.google.com/docs/functions/get-started
 
