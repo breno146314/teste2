@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OrçaElétrica - Login e Cadastro</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <div class="toggle-buttons">
+            <button id="showRegister">Cadastrar</button>
+            <button id="showLogin">Entrar</button>
+        </div>
+
+        <div id="registerSection" class="auth-section active">
+            <h1>Cadastre-se na OrçaElétrica</h1>
+            <form id="registerForm">
+                <div class="form-group">
+                    <label for="regUsername">Nome de Usuário:</label>
+                    <input type="text" id="regUsername" name="username" required minlength="3">
+                </div>
+                <div class="form-group">
+                    <label for="regEmail">Email:</label>
+                    <input type="email" id="regEmail" name="email" required>
+                </div>
+                <div class="form-group">
+                    <label for="regPassword">Senha:</label>
+                    <input type="password" id="regPassword" name="password" required minlength="8">
+                </div>
+                <div class="form-group">
+                    <label for="regConfirmPassword">Confirmar Senha:</label>
+                    <input type="password" id="regConfirmPassword" name="confirmPassword" required>
+                </div>
+                <button type="submit">Cadastrar</button>
+                <p id="registerMessage" class="message"></p>
+            </form>
+        </div>
+
+        <div id="loginSection" class="auth-section">
+            <h1>Entre na OrçaElétrica</h1>
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="loginEmail">Email:</label>
+                    <input type="email" id="loginEmail" name="email" required>
+                </div>
+                <div class="form-group">
+                    <label for="loginPassword">Senha:</label>
+                    <input type="password" id="loginPassword" name="password" required>
+                </div>
+                <button type="submit">Entrar</button>
+                <p id="loginMessage" class="message"></p>
+                <p class="forgot-password"><a href="#">Esqueceu a senha?</a></p>
+            </form>
+        </div>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+
+    <script src="script.js"></script>
+</body>
+</html>
