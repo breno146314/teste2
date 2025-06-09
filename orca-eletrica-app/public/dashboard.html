@@ -7,16 +7,27 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="container">
-        <h1 id="welcomeMessage">Carregando...</h1>
-        <p>Bem-vindo ao seu painel de controle da OrçaElétrica!</p>
-        <p>Aqui você poderá gerenciar seus serviços, materiais e criar orçamentos.</p>
-
-        <div class="dashboard-actions">
-            <button id="manageServicesBtn">Gerenciar Serviços/Materiais</button>
-            <button id="createQuotationBtn">Criar Novo Orçamento</button>
-            <button id="viewQuotationsBtn">Meus Orçamentos</button>
-        </div>
+   <div class="dashboard-grid">
+    <div class="dashboard-card" id="manageServicesCard"> <i class="icon-tools"></i>
+        <h3>Gerenciar Serviços e Materiais</h3>
+        <p>Cadastre e organize os itens que você usa nos seus orçamentos.</p>
+    </div>
+    <div class="dashboard-card" id="createQuotationCard">
+        <i class="icon-plus-circle"></i>
+        <h3>Criar Novo Orçamento</h3>
+        <p>Gere orçamentos profissionais de forma rápida e intuitiva.</p>
+    </div>
+    <div class="dashboard-card" id="viewQuotationsCard">
+        <i class="icon-file-text"></i>
+        <h3>Meus Orçamentos</h3>
+        <p>Visualize e gerencie todos os orçamentos que você já criou.</p>
+    </div>
+    <div class="dashboard-card" id="accountSettingsCard">
+        <i class="icon-settings"></i>
+        <h3>Configurações da Conta</h3>
+        <p>Atualize seus dados, logo da empresa e informações para o orçamento.</p>
+    </div>
+</div>
 
         <button id="logoutButton" class="logout-btn">Sair</button>
     </div>

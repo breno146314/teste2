@@ -1,14 +1,15 @@
 // public/manage-services.js
 
 // Cole a configuração do seu projeto Firebase aqui
+// Exemplo de como ficaria a linha 1 do seu script.js (ou outro arquivo JS do frontend)
 const firebaseConfig = {
-    apiKey: "AIzaSyBvFAdgyg9ns3qo4ENSR0TATy1QdMGfgCI", // SEU_API_KEY
-    authDomain: "orca-eleltrica.firebaseapp.com",     // SEU_AUTH_DOMAIN
-    projectId: "orca-eleltrica",                      // SEU_PROJECT_ID
-    storageBucket: "orca-eleltrica.firebasestorage.app", // SEU_STORAGE_BUCKET
-    messagingSenderId: "48836864931",                 // SEU_MESSAGING_SENDER_ID
-    appId: "1:48836864931:web:9b1dc4579ebd254b570816",   // SEU_APP_ID
-    measurementId: "G-1XXEHV4E69"                     // SEU_MEASUREMENT_ID (se habilitado)
+  apiKey: "AIzaSyBvFAdgyg9ns3qo4ENSR0TATy1QdMGfgCI",
+  authDomain: "orca-eleltrica.firebaseapp.com",
+  projectId: "orca-eleltrica",
+  storageBucket: "orca-eleltrica.firebasestorage.app",
+  messagingSenderId: "48836864931",
+  appId: "1:48836864931:web:9b1dc4579ebd254b570816",
+  measurementId: "G-1XXEHV4E69",
 };
 
 // Inicializa o Firebase

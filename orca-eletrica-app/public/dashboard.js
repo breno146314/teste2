@@ -1,14 +1,14 @@
 // Cole a configuração do seu projeto Firebase aqui
 // Mesma configuração usada em script.js
+// Exemplo de como ficaria a linha 1 do seu script.js (ou outro arquivo JS do frontend)
 const firebaseConfig = {
-   apiKey: "AIzaSyBvFAdgyg9ns3qo4ENSR0TATy1QdMGfgCI",
+  apiKey: "AIzaSyBvFAdgyg9ns3qo4ENSR0TATy1QdMGfgCI",
   authDomain: "orca-eleltrica.firebaseapp.com",
   projectId: "orca-eleltrica",
   storageBucket: "orca-eleltrica.firebasestorage.app",
   messagingSenderId: "48836864931",
   appId: "1:48836864931:web:9b1dc4579ebd254b570816",
-  measurementId: "G-1XXEHV4E69"
-  //measurementId: "SEU_MEASUREMENT_ID" // Opcional, se usar Analytics
+  measurementId: "G-1XXEHV4E69",
 };
 
 
