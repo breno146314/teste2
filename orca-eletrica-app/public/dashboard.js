@@ -2,7 +2,7 @@
 
 // Cole a configuração do seu projeto Firebase aqui
 const firebaseConfig = {
-    apiKey: "AIzaSyBvFAdgyg9ns3qo4ENSR0TATy1QdMGfgCI", // EX: "AIzaSyBvFAdgyg9ns3qo4ENSR0TATy1QdMGfgCI"
+    apiKey: "SUA_API_KEY", // EX: "AIzaSyBvFAdgyg9ns3qo4ENSR0TATy1QdMGfgCI"
     authDomain: "orca-eleltrica.firebaseapp.com",     // EX: "orca-eleltrica.firebaseapp.com"
     projectId: "orca-eleltrica",                      // EX: "orca-eleltrica"
     storageBucket: "orca-eleltrica.firebasestorage.app", // EX: "orca-eleltrica.firebasestorage.app"
@@ -17,6 +17,7 @@ firebase.initializeApp(firebaseConfig);
 // Obtém instâncias dos serviços
 const auth = firebase.auth();
 const db = firebase.firestore();
+const storage = firebase.storage(); // Adicionado para ser usado na seção de perfil
 
 // --- Elementos HTML do Dashboard ---
 const welcomeMessage = document.getElementById('welcomeMessage');
@@ -26,10 +27,16 @@ const logoutButton = document.getElementById('logoutButton');
 const sidebarNavLinks = document.querySelectorAll('.sidebar-nav ul li a');
 const contentSections = document.querySelectorAll('.main-content .content-section');
 
+// Referências às seções de conteúdo que serão carregadas dinamicamente
+const dashboardOverviewSection = document.getElementById('dashboardOverview');
+const manageServicesSection = document.getElementById('manageServicesSection');
+const createQuotationSection = document.getElementById('createQuotationSection');
+const myQuotationsSection = document.getElementById('myQuotationsSection');
+const accountSettingsSection = document.getElementById('accountSettingsSection');
+
 // Botões de ação rápida na Visão Geral
 const quickCreateQuotationBtn = document.getElementById('quickCreateQuotation');
 const quickViewQuotationsBtn = document.getElementById('quickViewQuotations');
-
 
 let currentUser = null; // Variável para armazenar o usuário logado
 
@@ -49,26 +56,82 @@ function showSection(sectionId) {
         link.classList.remove('active');
     });
 
-    // Mostra a seção desejada
+    // Mostra a seção desejada e ativa o link correspondente na sidebar
     const targetSection = document.getElementById(sectionId);
     if (targetSection) {
         targetSection.classList.add('active');
-        // Ativa o link correspondente na sidebar
         document.querySelector(`.sidebar-nav ul li a[data-section="${sectionId}"]`).classList.add('active');
     }
 
-    // Gerencia o carregamento de conteúdo externo (se for o caso)
-    // Para simplificar, as páginas serão carregadas via window.location.href por enquanto
-    // mas esta estrutura permitiria carregar HTML dinamicamente com fetch()
+    // --- Lógica para Carregar Conteúdo Dinamicamente ---
+    // Remove o conteúdo das seções dinâmicas antes de carregar o novo
+    manageServicesSection.innerHTML = `<h1>Gerenciar Serviços e Materiais</h1><p>Carregando...</p>`;
+    accountSettingsSection.innerHTML = `<h1>Minha Conta e Perfil da Empresa</h1><p>Carregando...</p>`;
+    createQuotationSection.innerHTML = `<h1>Criar Novo Orçamento</h1><p>Carregando...</p>`; // Adiciona carregamento para esta também
+
     if (sectionId === 'manageServicesSection') {
-        window.location.href = '/manage-services.html';
-    } else if (sectionId === 'createQuotationSection') {
-        window.location.href = '/create-quotation.html';
-    } else if (sectionId === 'myQuotationsSection') {
-        // Futura página de listagem de orçamentos
-        alert('Meus Orçamentos: Funcionalidade em construção!');
+        loadContentIntoSection('/manage-services.html', manageServicesSection, 'manage-services.js');
     } else if (sectionId === 'accountSettingsSection') {
-        window.location.href = '/profile.html';
+        loadContentIntoSection('/profile.html', accountSettingsSection, 'profile.js');
+    } else if (sectionId === 'createQuotationSection') {
+        loadContentIntoSection('/create-quotation.html', createQuotationSection, 'create-quotation.js');
+    } else if (sectionId === 'myQuotationsSection') {
+        alert('Meus Orçamentos: Funcionalidade em construção!');
+        // Aqui você carregaria o conteúdo de 'my-quotations.html'
+    }
+}
+
+/**
+ * Carrega o conteúdo HTML de uma URL e injeta em uma seção,
+ * então executa o script JS associado.
+ * @param {string} url O caminho para o arquivo HTML a ser carregado.
+ * @param {HTMLElement} targetSection O elemento HTML onde o conteúdo será injetado.
+ * @param {string} scriptToLoad O caminho para o arquivo JS a ser executado após a injeção do HTML.
+ */
+async function loadContentIntoSection(url, targetSection, scriptToLoad) {
+    try {
+        // Fetch o HTML
+        const response = await fetch(url);
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const html = await response.text();
+
+        // Extrai apenas o conteúdo do <body> (ou a parte que nos interessa)
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(html, 'text/html');
+        const contentToInject = doc.body.querySelector('.container') ? doc.body.querySelector('.container').innerHTML : doc.body.innerHTML;
+
+        targetSection.innerHTML = contentToInject; // Injeta o HTML
+
+        // Remove scripts previamente carregados para evitar duplicação ou conflito
+        const oldScript = document.getElementById(`dynamic-script-${targetSection.id}`);
+        if (oldScript) {
+            oldScript.remove();
+        }
+
+        // Cria e anexa o novo script, garantindo que ele execute
+        const scriptElement = document.createElement('script');
+        scriptElement.src = scriptToLoad;
+        scriptElement.id = `dynamic-script-${targetSection.id}`; // Adiciona um ID único
+        scriptElement.onload = () => {
+            console.log(`${scriptToLoad} carregado e executado.`);
+            // Para scripts que dependem de eventos DOMContentLoaded, dispará-lo manualmente
+            const event = new Event('DOMContentLoaded', {
+                bubbles: true,
+                cancelable: true,
+            });
+            targetSection.dispatchEvent(event); // Dispara o evento na seção carregada
+        };
+        scriptElement.onerror = (e) => {
+            console.error(`Erro ao carregar script ${scriptToLoad}:`, e);
+            targetSection.innerHTML = `<p class="message error">Erro ao carregar o conteúdo. Por favor, tente novamente.</p>`;
+        };
+        document.body.appendChild(scriptElement); // Adiciona o script ao body
+
+    } catch (error) {
+        console.error(`Erro ao carregar conteúdo de ${url}:`, error);
+        targetSection.innerHTML = `<p class="message error">Erro ao carregar o conteúdo. Por favor, tente novamente.</p>`;
     }
 }
 
@@ -127,10 +190,11 @@ sidebarNavLinks.forEach(link => {
 
 // --- Event Listeners para Botões de Ação Rápida no Dashboard (Visão Geral) ---
 quickCreateQuotationBtn.addEventListener('click', () => {
-    window.location.href = '/create-quotation.html'; // Redireciona para a página de criar orçamento
+    // Agora ele mostra a seção interna, não redireciona
+    showSection('createQuotationSection'); 
 });
 
 quickViewQuotationsBtn.addEventListener('click', () => {
     alert('Meus Orçamentos: Funcionalidade em construção!');
-    // window.location.href = '/my-quotations.html'; // Futura página de listagem
+    // showSection('myQuotationsSection'); // Se você tivesse conteúdo pronto para esta seção
 });

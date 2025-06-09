@@ -1,0 +1,17 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    // Permite leitura para qualquer um (se a logo for pública)
+    // Permite escrita apenas para usuários autenticados, com limite de tamanho
+    match /user-logos/{userId}/{fileName} {
+      allow read: if true; // Qualquer um pode ler a logo de um usuário
+      // Permite escrita/upload somente para o usuário autenticado, na sua própria pasta e com tamanho limite
+      allow write: if request.auth != null && request.auth.uid == userId && request.resource.size < 2 * 1024 * 1024;
+    }
+
+    // Negar acesso para outros caminhos no storage por padrão
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}

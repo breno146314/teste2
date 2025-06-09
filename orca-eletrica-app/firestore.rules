@@ -4,20 +4,24 @@ service cloud.firestore {
     // Regra para a coleção 'users' (documento principal do usuário)
     match /users/{userId} {
       allow read, update: if request.auth != null && request.auth.uid == userId; // Usuário só lê/atualiza o próprio perfil
-      allow create: if request.auth != null; // Permite criar o próprio perfil
+      allow create: if request.auth != null; // Permite criar o próprio perfil (durante o cadastro)
     }
 
     // Regras para subcoleções 'services' e 'materials' dentro de cada usuário
     match /users/{userId}/services/{serviceId} {
-      allow read, write: if request.auth != null && request.auth.uid == userId; // Usuário só pode ler/escrever nos SEUS serviços
+      allow read, write: if request.auth != null && request.auth.uid == userId;
     }
 
     match /users/{userId}/materials/{materialId} {
-      allow read, write: if request.auth != null && request.auth.uid == userId; // Usuário só pode ler/escrever nos SEUS materiais
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+
+    // Regras para a subcoleção 'quotations' dentro de cada usuário
+    match /users/{userId}/quotations/{quotationId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
     }
 
     // Regra para outras coleções (se houver, ajuste conforme necessário)
-    // Por enquanto, negamos o acesso a outras coleções que não sejam as específicas de usuário
     match /{document=**} {
       allow read, write: if false; // Nega acesso a qualquer outra coisa por padrão
     }
