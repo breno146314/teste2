@@ -5,36 +5,65 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard - OrçaElétrica</title>
     <link rel="stylesheet" href="style.css">
+    <link rel="icon" href="images/favicon.png" type="image/png">
 </head>
 <body>
-   <div class="dashboard-grid">
-    <div class="dashboard-card" id="manageServicesCard"> <i class="icon-tools"></i>
-        <h3>Gerenciar Serviços e Materiais</h3>
-        <p>Cadastre e organize os itens que você usa nos seus orçamentos.</p>
-    </div>
-    <div class="dashboard-card" id="createQuotationCard">
-        <i class="icon-plus-circle"></i>
-        <h3>Criar Novo Orçamento</h3>
-        <p>Gere orçamentos profissionais de forma rápida e intuitiva.</p>
-    </div>
-    <div class="dashboard-card" id="viewQuotationsCard">
-        <i class="icon-file-text"></i>
-        <h3>Meus Orçamentos</h3>
-        <p>Visualize e gerencie todos os orçamentos que você já criou.</p>
-    </div>
-    <div class="dashboard-card" id="accountSettingsCard">
-        <i class="icon-settings"></i>
-        <h3>Configurações da Conta</h3>
-        <p>Atualize seus dados, logo da empresa e informações para o orçamento.</p>
-    </div>
-</div>
+    <div class="dashboard-layout">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h2>OrçaElétrica</h2>
+                <p id="loggedInUserEmail"></p> </div>
+            <nav class="sidebar-nav">
+                <ul>
+                    <li><a href="#" data-section="dashboardOverview" class="active">Visão Geral</a></li>
+                    <li><a href="#" data-section="manageServicesSection">Serviços e Materiais</a></li>
+                    <li><a href="#" data-section="createQuotationSection">Novo Orçamento</a></li>
+                    <li><a href="#" data-section="myQuotationsSection">Meus Orçamentos</a></li>
+                    <li><a href="#" data-section="accountSettingsSection">Minha Conta</a></li>
+                </ul>
+            </nav>
+            <div class="sidebar-footer">
+                <button id="logoutButton" class="logout-btn">Sair</button>
+            </div>
+        </aside>
 
-        <button id="logoutButton" class="logout-btn">Sair</button>
+        <main class="main-content">
+            <section id="dashboardOverview" class="content-section active">
+                <h1 id="welcomeMessage">Carregando...</h1>
+                <p>Bem-vindo ao seu painel de controle da OrçaElétrica!</p>
+                <p>Aqui você poderá gerenciar seus serviços, materiais e criar orçamentos.</p>
+                <div class="dashboard-actions">
+                    <button class="btn btn-primary btn-large" id="quickCreateQuotation">Criar Orçamento Rápido</button>
+                    <button class="btn btn-secondary btn-large" id="quickViewQuotations">Ver Meus Orçamentos</button>
+                </div>
+                </section>
+
+            <section id="manageServicesSection" class="content-section">
+                <h1>Gerenciar Serviços e Materiais</h1>
+                <p>Esta área será preenchida com o conteúdo da página de gerenciamento.</p>
+                </section>
+
+            <section id="createQuotationSection" class="content-section">
+                <h1>Criar Novo Orçamento</h1>
+                <p>Esta área será preenchida com o conteúdo da página de criação de orçamento.</p>
+                </section>
+
+            <section id="myQuotationsSection" class="content-section">
+                <h1>Meus Orçamentos</h1>
+                <p>Esta área será preenchida com a lista dos seus orçamentos.</p>
+                </section>
+
+            <section id="accountSettingsSection" class="content-section">
+                <h1>Minha Conta e Perfil da Empresa</h1>
+                <p>Esta área será preenchida com o conteúdo da sua página de perfil.</p>
+                </section>
+        </main>
     </div>
 
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-storage-compat.js"></script>
 
     <script src="dashboard.js"></script>
 </body>

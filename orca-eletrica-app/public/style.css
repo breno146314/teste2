@@ -975,5 +975,230 @@ section h2::after {
         padding: 8px;
         font-size: 0.85em;
     }
+    /* --- Estilos do Layout do Dashboard (Nova Versão) --- */
+.dashboard-layout {
+    display: flex; /* Cria um layout flexbox para sidebar e conteúdo principal */
+    min-height: 100vh; /* Ocupa a altura total da viewport */
+    background-color: var(--background-light);
+}
+
+.sidebar {
+    width: 250px; /* Largura fixa da sidebar */
+    background-color: var(--text-color-dark); /* Cor de fundo escura */
+    color: var(--text-color-light);
+    display: flex;
+    flex-direction: column; /* Itens da sidebar em coluna */
+    padding: 20px;
+    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1); /* Sombra para destacar */
+    flex-shrink: 0; /* Impede que a sidebar encolha */
+    position: sticky; /* Fixa a sidebar ao rolar */
+    top: 0;
+    height: 100vh; /* Ocupa a altura total da viewport */
+    overflow-y: auto; /* Permite rolagem se o conteúdo for muito longo */
+}
+
+.sidebar-header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.sidebar-header h2 {
+    color: var(--primary-color); /* Cor de destaque para o logo */
+    font-size: 1.8em;
+    margin-bottom: 5px;
+}
+
+.sidebar-header p {
+    font-size: 0.9em;
+    color: rgba(255, 255, 255, 0.7); /* Cor mais suave para o email */
+}
+
+.sidebar-nav ul {
+    list-style: none;
+    padding: 0;
+    flex-grow: 1; /* Faz a navegação ocupar o espaço restante */
+}
+
+.sidebar-nav ul li {
+    margin-bottom: 10px;
+}
+
+.sidebar-nav ul li a {
+    display: block; /* Ocupa toda a largura do item da lista */
+    padding: 12px 15px;
+    color: var(--text-color-light);
+    text-decoration: none;
+    border-radius: 5px;
+    transition: background-color var(--transition-speed), color var(--transition-speed);
+    font-weight: 500;
+}
+
+.sidebar-nav ul li a:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    color: var(--primary-color);
+}
+
+.sidebar-nav ul li a.active {
+    background-color: var(--primary-color);
+    color: var(--text-color-light);
+    font-weight: bold;
+}
+
+.sidebar-footer {
+    margin-top: auto; /* Empurra o rodapé (logout) para o final da sidebar */
+    padding-top: 20px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    text-align: center;
+}
+
+.logout-btn {
+    width: 100%;
+    padding: 12px;
+    background-color: #dc3545; /* Cor vermelha para logout */
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 1.1em;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background-color 0.3s ease, transform 0.1s ease;
+}
+
+.logout-btn:hover {
+    background-color: #c82333;
+    transform: translateY(-1px);
+}
+
+.main-content {
+    flex-grow: 1; /* Ocupa todo o espaço restante horizontalmente */
+    padding: 40px;
+    background-color: var(--background-light);
+    overflow-y: auto; /* Permite rolagem no conteúdo principal */
+}
+
+.content-section {
+    background-color: #fff;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: var(--box-shadow-light);
+    margin-bottom: 30px; /* Espaço entre as seções, se mais de uma for exibida */
+    display: none; /* ESCONDIDO POR PADRÃO, JS VAI MOSTRAR */
+    animation: fadeIn 0.5s ease-out; /* Animação simples de fade in */
+}
+
+.content-section.active {
+    display: block; /* MOSTRA A SEÇÃO ATIVA */
+}
+
+.main-content h1 {
+    font-size: 2em;
+    color: var(--text-color-dark);
+    margin-bottom: 20px;
+    text-align: left; /* Títulos do dashboard alinhados à esquerda */
+}
+
+.main-content p {
+    font-size: 1.05em;
+    color: #555;
+    margin-bottom: 15px;
+    text-align: left;
+}
+
+.dashboard-actions {
+    display: flex;
+    flex-wrap: wrap; /* Permite quebrar linha em telas pequenas */
+    gap: 15px;
+    margin-top: 30px;
+}
+
+/* Os botões de ação rápida do dashboard agora usam o estilo de .btn */
+.dashboard-actions .btn {
+    flex: 1 1 auto; /* Permite que cresça e encolha */
+    max-width: 300px; /* Limita a largura para botões em linha */
+}
+
+/* Estilos de formulário da Minha Conta (se já tiver o profile.html) */
+/* Estes estilos já devem estar no style.css, mas garanta que não foram removidos */
+/* #companyProfileForm, .logo-preview, .security-info, etc. */
+
+
+/* --- Responsividade do Dashboard --- */
+@media (max-width: 992px) { /* Tablets */
+    .sidebar {
+        width: 200px; /* Sidebar um pouco menor */
+        padding: 15px;
+    }
+    .sidebar-header h2 {
+        font-size: 1.6em;
+    }
+    .sidebar-nav ul li a {
+        padding: 10px 12px;
+        font-size: 0.95em;
+    }
+    .main-content {
+        padding: 30px;
+    }
+    .main-content h1 {
+        font-size: 1.8em;
+    }
+}
+
+@media (max-width: 768px) { /* Celulares */
+    .dashboard-layout {
+        flex-direction: column; /* Sidebar acima do conteúdo principal */
+    }
+
+    .sidebar {
+        width: 100%;
+        height: auto; /* Altura automática, não fixa */
+        padding: 15px 20px;
+        flex-direction: row; /* Itens do header na mesma linha */
+        justify-content: space-between;
+        align-items: center;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        position: static; /* Não fixa mais ao rolar em mobile */
+    }
+
+    .sidebar-header {
+        margin-bottom: 0;
+        text-align: left;
+        flex-grow: 1; /* Ocupa espaço para logo */
+    }
+
+    .sidebar-header h2 {
+        font-size: 1.5em;
+    }
+
+    .sidebar-header p {
+        display: none; /* Esconde o email do usuário em mobile */
+    }
+
+    .sidebar-nav {
+        display: none; /* Esconde a navegação principal da sidebar em mobile */
+        /* Pode ser substituído por um menu hambúrguer para mobile */
+    }
+
+    .sidebar-footer {
+        width: auto; /* O botão de sair fica ao lado do logo */
+        margin-top: 0;
+        padding-top: 0;
+        border-top: none;
+        margin-left: 20px; /* Espaçamento do logo */
+    }
+
+    .logout-btn {
+        font-size: 0.9em;
+        padding: 8px 15px;
+        width: auto; /* Ocupa o necessário */
+    }
+
+    .main-content {
+        padding: 20px;
+    }
+
+    .content-section {
+        padding: 20px;
+    }
+}
 }
 }
