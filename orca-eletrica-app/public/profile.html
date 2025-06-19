@@ -1,0 +1,64 @@
+<div class="container profile-container bg-white p-4 rounded shadow-sm">
+    <h1 class="mb-4 text-center text-primary">Configurações da Conta</h1>
+    <p class="lead text-center mb-5 text-muted">Gerencie seus dados pessoais, informações da empresa e faça o upload da sua logo para os orçamentos.</p>
+
+    <form id="profileForm" class="profile-form needs-validation" novalidate>
+        <h2 class="mb-3 border-bottom pb-2 text-dark">Dados Pessoais</h2>
+        <div class="mb-3">
+            <label for="username" class="form-label">Nome de Usuário:</label>
+            <input type="text" id="username" name="username" class="form-control" required>
+            <div class="invalid-feedback">Por favor, insira um nome de usuário.</div>
+        </div>
+        <div class="mb-3">
+            <label for="email" class="form-label">Email:</label>
+            <input type="email" id="email" name="email" class="form-control" disabled> <small class="form-text text-muted">Seu email de login não pode ser alterado por aqui.</small>
+        </div>
+        
+        <h2 class="mb-3 mt-5 border-bottom pb-2 text-dark">Informações da Empresa</h2>
+        <div class="mb-3">
+            <label for="companyName" class="form-label">Nome da Empresa:</label>
+            <input type="text" id="companyName" name="companyName" class="form-control">
+        </div>
+        <div class="mb-3">
+            <label for="cnpj" class="form-label">CNPJ:</label>
+            <input type="text" id="cnpj" name="cnpj" class="form-control" placeholder="Ex: XX.XXX.XXX/XXXX-XX">
+        </div>
+        <div class="mb-3">
+            <label for="companyAddress" class="form-label">Endereço da Empresa:</label>
+            <textarea id="companyAddress" name="companyAddress" rows="2" class="form-control" placeholder="Rua, Número, Bairro, Cidade, Estado"></textarea>
+        </div>
+        <div class="mb-3">
+            <label for="companyPhone" class="form-label">Telefone da Empresa:</label>
+            <input type="tel" id="companyPhone" name="companyPhone" class="form-control" placeholder="(XX) XXXX-XXXX">
+        </div>
+
+        <h2 class="mb-3 mt-5 border-bottom pb-2 text-dark">Logo da Empresa</h2>
+        <div class="mb-3 logo-upload-group">
+            <label for="companyLogo" class="form-label">Fazer Upload da Logo:</label>
+            <input type="file" id="companyLogo" name="companyLogo" accept="image/*" class="form-control">
+            <small class="form-text text-muted">Formatos aceitos: JPG, PNG. Tamanho máximo: 2MB.</small>
+            <div class="current-logo-preview mt-3 text-center">
+                <img id="logoPreview" src="images/placeholder-logo.png" alt="Logo da Empresa" class="img-thumbnail" style="max-width: 150px; max-height: 150px;">
+                <p id="logoStatus" class="mt-2 text-muted">Nenhuma logo enviada ainda.</p>
+                <p id="noLogoText" class="text-muted" style="display:none;">Nenhuma logo enviada.</p>
+            </div>
+        </div>
+
+        <h2 class="mb-3 mt-5 border-bottom pb-2 text-dark">Termos Padrão do Orçamento (Opcional)</h2>
+        <div class="mb-3">
+            <label for="defaultTerms" class="form-label">Condições de Pagamento/Garantia:</label>
+            <textarea id="defaultTerms" name="defaultTerms" rows="5" class="form-control" placeholder="Ex: Pagamento em 2x no cartão. Garantia de 3 meses para mão de obra."></textarea>
+        </div>
+
+        <button type="submit" class="btn btn-primary mt-4">Salvar Alterações</button>
+        <p id="profileMessage" class="message mt-3"></p>
+    </form>
+
+    <div class="security-info bg-light p-4 rounded mt-5 shadow-sm">
+        <h2 class="mb-3 text-dark">Segurança da Conta</h2>
+        <p class="mb-2 text-muted">Seu e-mail de login é: <span class="fw-bold text-dark" id="loggedInEmailProfile"></span></p>
+        <p><a href="#" id="changePasswordLink" class="text-primary">Alterar Senha (enviar e-mail de redefinição)</a></p>
+    </div>
+
+    <button id="backToDashboard" class="btn btn-secondary mt-4">Voltar para o Dashboard</button>
+</div>
