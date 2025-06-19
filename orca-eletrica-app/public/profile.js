@@ -1,24 +1,21 @@
 // public/profile.js
 
 // **IMPORTANTE:** Removida a declaração de firebaseConfig aqui (já foi feita antes).
-// O Firebase já é inicializado globalmente por dashboard.js.
+// **IMPORTANTE:** Removidas as declarações de instâncias Firebase aqui (já foi feita antes).
+// O Firebase e suas instâncias (auth, db, storage) já são inicializados e acessíveis globalmente
+// ou passados via window.initProfilePage.
 
-// **CORREÇÃO:** Removidas as declarações de instâncias Firebase aqui.
-// Elas serão passadas como argumentos para window.initProfilePage.
-// let auth = firebase.auth(); // REMOVER ESTA LINHA
-// let db = firebase.firestore(); // REMOVER ESTA LINHA
-// let storage = firebase.storage(); // REMOVER ESTA LINHA
+// --- Variáveis para Referências a Elementos HTML (serão atribuídas APENAS EM initProfilePage) ---
+// **CORREÇÃO:** Estas variáveis agora SÃO DECLARADAS SEM VALOR INICIAL GLOBALMENTE.
+// Serão atribuídas com document.getElementById() DENTRO de initProfilePage.
+let profileForm; let usernameInput; let emailInput; let companyNameInput;
+let cnpjInput; let companyAddressInput; let companyPhoneInput;
+let companyLogoInput; let logoPreview; let logoStatus;
+let defaultTermsInput; let profileMessage; let backToDashboardBtn;
+let loggedInEmailProfileSpan; let changePasswordLink;
 
+let currentUser = null; // Variável para armazenar o usuário logado (manter global)
 
-// --- Variáveis para Referências a Elementos HTML (serão atribuídas em initProfilePage) ---
-// Declaradas aqui para que todas as funções auxiliares tenham acesso após a inicialização.
-let profileForm = null; let usernameInput = null; let emailInput = null; let companyNameInput = null;
-let cnpjInput = null; let companyAddressInput = null; let companyPhoneInput = null;
-let companyLogoInput = null; let logoPreview = null; let logoStatus = null;
-let defaultTermsInput = null; let profileMessage = null; let backToDashboardBtn = null;
-let loggedInEmailProfileSpan = null; let changePasswordLink = null;
-
-let currentUser = null; // Variável para armazenar o usuário logado
 
 // --- Funções Auxiliares Comuns (replicadas aqui para que profile.js funcione independentemente) ---
 // Estas funções são tipicamente globais (definidas em dashboard.js ou um util.js)
@@ -49,13 +46,13 @@ function showMessage(element, msg, type) {
 window.initProfilePage = async function(userObj, firestoreDb, firebaseAuth, firebaseStorage) {
     console.log("profile.js: initProfilePage chamada. Obtendo referências de elementos.");
     // Reatribuir as instâncias do Firebase passadas pelo dashboard.js
-    // Isso garante que este script use as mesmas instâncias do dashboard.js.
     currentUser = userObj;
-    db = firestoreDb; // <<-- db será a instância passada
-    auth = firebaseAuth; // <<-- auth será a instância passada
-    storage = firebaseStorage; // <<-- storage será a instância passada
+    db = firestoreDb; // <<-- db é a instância passada
+    auth = firebaseAuth; // <<-- auth é a instância passada
+    storage = firebaseStorage; // <<-- storage é a instância passada
 
     // --- Obter Referências dos Elementos HTML (APÓS o HTML ser injetado) ---
+    // É crucial re-obter referências a cada vez que a página é carregada dinamicamente
     profileForm = document.getElementById('profileForm');
     usernameInput = document.getElementById('username');
     emailInput = document.getElementById('email');
@@ -72,9 +69,12 @@ window.initProfilePage = async function(userObj, firestoreDb, firebaseAuth, fire
     loggedInEmailProfileSpan = document.getElementById('loggedInEmailProfile');
     changePasswordLink = document.getElementById('changePasswordLink');
 
-    // Debugging: Verificar se os elementos foram encontrados
+    // **DEBBUGING: Verificar se os elementos foram encontrados**
     if (!profileForm) console.error("profile.js: ERRO - profileForm não encontrado!");
-    // ... (adicione mais logs para depuração se precisar)
+    if (!usernameInput) console.error("profile.js: ERRO - usernameInput não encontrado!");
+    if (!loggedInEmailProfileSpan) console.error("profile.js: ERRO - loggedInEmailProfileSpan não encontrado!");
+    // ... adicione mais checks para outros elementos se precisar de depuração visual
+
 
     // Carregar dados do perfil se o usuário estiver logado
     if (currentUser) {
@@ -84,7 +84,7 @@ window.initProfilePage = async function(userObj, firestoreDb, firebaseAuth, fire
         await loadProfileData(currentUser.uid);
     } else {
         console.log('profile.js: Nenhum usuário logado. Redirecionando para login.');
-        window.location.href = '/index.html';
+        window.location.href = '/index.html'; // Redirecionamento de fallback
     }
 
     // --- Re-adicionar Event Listeners (CRÍTICO: Elementos são recriados a cada carga dinâmica) ---
@@ -121,7 +121,7 @@ async function loadProfileData(uid) {
             if (companyPhoneInput) companyPhoneInput.value = userData.companyPhone || '';
             if (defaultTermsInput) defaultTermsInput.value = userData.defaultTerms || '';
 
-            if (logoPreview) {
+            if (logoPreview) { // Carregar logo da empresa se existir
                 if (userData.logoUrl) {
                     logoPreview.src = userData.logoUrl;
                     logoPreview.style.display = 'block';
@@ -129,6 +129,7 @@ async function loadProfileData(uid) {
                     if (noLogoText) noLogoText.style.display = 'none';
                     if (logoStatus) logoStatus.textContent = 'Logo atual carregada.';
                 } else {
+                    // Se não tiver logo URL no Firestore, mas há uma imagem de placeholder padrão
                     logoPreview.src = 'images/placeholder-logo.png';
                     logoPreview.style.display = 'block';
                     const noLogoText = document.getElementById('noLogoText');
@@ -138,6 +139,8 @@ async function loadProfileData(uid) {
             }
         } else { 
             console.log('profile.js: Documento de usuário não encontrado no Firestore. Iniciando com campos vazios.');
+            // Se o documento não existe (ex: primeiro login após cadastro), campos ficam vazios.
+            // Garante que o preview da logo mostra o placeholder.
             if (logoPreview) logoPreview.src = 'images/placeholder-logo.png';
             const noLogoText = document.getElementById('noLogoText');
             if (noLogoText) noLogoText.style.display = 'block';
@@ -228,7 +231,7 @@ function handleLogoInputChange(event) {
         };
         reader.readAsDataURL(file);
     } else {
-        if (currentUser && currentUser.uid && db) { // Verifica se db está disponível
+        if (currentUser && currentUser.uid && db) {
             db.collection('users').doc(currentUser.uid).get().then(doc => {
                 const userData = doc.data();
                 if (userData && userData.logoUrl) {
