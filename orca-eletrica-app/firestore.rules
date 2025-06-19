@@ -1,0 +1,44 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Regra para a coleção 'users' (documento principal do usuário)
+    // Permite leitura e atualização do próprio perfil. Criação se autenticado.
+    match /users/{userId} {
+      allow read, update: if request.auth != null && request.auth.uid == userId;
+      allow create: if request.auth != null;
+    }
+
+    // Regras para subcoleções 'services' dentro de cada usuário
+    // Usuário só pode ler/escrever nos SEUS serviços.
+    match /users/{userId}/services/{serviceId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+
+    // Regras para subcoleções 'materials' dentro de cada usuário
+    // Usuário só pode ler/escrever nos SEUS materiais.
+    match /users/{userId}/materials/{materialId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+
+    // Regras para subcoleções 'quotations' dentro de cada usuário
+    // Usuário só pode ler/escrever nos SEUS orçamentos.
+    match /users/{userId}/quotations/{quotationId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+
+    // Regra para a coleção global 'predefinedServices'
+    // Permite que QUALQUER USUÁRIO AUTENTICADO LEIA os serviços predefinidos.
+    // Ninguém pode escrever/modificar/excluir esses itens.
+    match /predefinedServices/{serviceId} {
+      allow read: if request.auth != null;
+      allow write: if false;
+    }
+
+    // **IMPORTANTE**: Esta é a REGRA DE CATCH-ALL.
+    // Ela DEVE ser a ÚLTIMA regra 'match' dentro do bloco 'match /databases/{database}/documents'.
+    // Nega acesso a qualquer outra coleção ou documento por padrão.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
