@@ -2,7 +2,7 @@
 
 // **IMPORTANTE:** Cole a configuração REAL do seu projeto Firebase aqui!
 const firebaseConfig = {
-    apiKey: "AIzaSyBvFAdgyg9ns3qo4ENSR0TATy1QdMGfgCI",
+    apiKey: "AIzaSyBvFAdgyg9ns3qo4ENSR0TATy1QdMGfgCI", 
     authDomain: "orca-eleltrica.firebaseapp.com",
     projectId: "orca-eleltrica",
     storageBucket: "orca-eleltrica.firebasestorage.app",
@@ -15,9 +15,9 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 
 // Obtém instâncias dos serviços Firebase
-const auth = firebase.auth();
-const db = firebase.firestore();
-const storage = firebase.storage();
+let auth = firebase.auth();
+let db = firebase.firestore();
+let storage = firebase.storage();
 
 // --- Elementos HTML do Dashboard ---
 const loggedInUserEmail = document.getElementById('loggedInUserEmail'); // Email na sidebar (desktop)
@@ -238,7 +238,7 @@ if (logoutButtonNav) {
     });
 }
 
-if (logoutButton) { // Este é o botão de sair da sidebar (agora 'logoutButton')
+if (logoutButton) { // Este é o botão de sair da sidebar (desktop/mobile offcanvas)
     logoutButton.addEventListener('click', async () => {
         try {
             await auth.signOut();
@@ -259,8 +259,8 @@ sidebarNavLinks.forEach(link => {
         showSection(sectionId);
         
         // Fecha o offcanvas se estiver em mobile
-        if (window.innerWidth < 992) { // Mobile (quando a sidebar é um offcanvas)
-            const offcanvasInstance = bootstrap.Offcanvas.getInstance(mobileOffcanvasElement); // Usamos mobileOffcanvasElement aqui
+        if (window.innerWidth < 992) {
+            const offcanvasInstance = bootstrap.Offcanvas.getInstance(mobileOffcanvasElement);
             if (offcanvasInstance) {
                 offcanvasInstance.hide();
             }
@@ -272,10 +272,9 @@ sidebarNavLinks.forEach(link => {
 if (sidebarToggleBtn) {
     sidebarToggleBtn.addEventListener('click', () => {
         if (window.innerWidth >= 992) { // Desktop
-            wrapper.classList.toggle('toggled'); // Toggle classe para esconder/mostrar sidebar fixa
+            wrapper.classList.toggle('toggled');
         } else { // Mobile
-            // Aciona o offcanvas via JS do Bootstrap
-            let offcanvasInstance = bootstrap.Offcanvas.getInstance(mobileOffcanvasElement); // Usa mobileOffcanvasElement aqui
+            let offcanvasInstance = bootstrap.Offcanvas.getInstance(mobileOffcanvasElement);
             if (!offcanvasInstance) {
                 offcanvasInstance = new bootstrap.Offcanvas(mobileOffcanvasElement);
             }
@@ -299,8 +298,6 @@ dashboardQuickActionCards.forEach(card => {
 // possa chamá-las após carregar o HTML e o script correspondente.
 
 // Funções Auxiliares Gerais (compartilhadas)
-// NOTA: Estas funções (formatCurrency, showMessage) são definidas no escopo global deste dashboard.js.
-// Certifique-se de NÃO duplicá-las em profile.js, manage-services.js ou create-quotation.js.
 window.formatCurrency = formatCurrency;
 window.showMessage = showMessage;
 
@@ -351,7 +348,7 @@ window.initProfilePage = async function(userObj, firestoreDb, firebaseAuth, fire
     if (changePasswordLink) changePasswordLink.addEventListener('click', handleChangePassword);
 };
 
-// Funções auxiliares para profile.js (definidas globalmente para serem acessíveis)
+// Funções auxiliares para profile.js
 async function loadProfileData(uid) {
     if (profileMessage) window.showMessage(profileMessage, '', '');
     try {
@@ -385,14 +382,14 @@ async function loadProfileData(uid) {
         } else { console.log('Documento de usuário não encontrado no Firestore.'); }
     } catch (error) {
         console.error('Erro ao carregar dados do perfil:', error);
-        if (profileMessage) window.showMessage(profileMessage, 'Erro ao carregar dados do perfil.', 'error');
+        if (profileMessage) window.showMessage(profileMessage, 'Erro ao carregar dados do perfil. Verifique as regras do Firestore.', 'danger');
     }
 }
 
 async function handleProfileFormSubmit(event) {
     event.preventDefault();
     if (!currentUser) {
-        if (profileMessage) window.showMessage(profileMessage, 'Nenhum usuário logado para salvar o perfil.', 'error');
+        if (profileMessage) window.showMessage(profileMessage, 'Nenhum usuário logado para salvar o perfil.', 'danger');
         return;
     }
     if (profileMessage) window.showMessage(profileMessage, '', '');
@@ -406,7 +403,7 @@ async function handleProfileFormSubmit(event) {
             const file = companyLogoInput.files[0];
             const maxFileSize = 2 * 1024 * 1024;
             if (file.size > maxFileSize) {
-                if (profileMessage) window.showMessage(profileMessage, 'Erro: O arquivo da logo é muito grande (máx 2MB).', 'error');
+                if (profileMessage) window.showMessage(profileMessage, 'Erro: O arquivo da logo é muito grande (máx 2MB).', 'danger');
                 return;
             }
             if (logoStatus) logoStatus.textContent = 'Fazendo upload da logo...';
@@ -420,7 +417,7 @@ async function handleProfileFormSubmit(event) {
                 (error) => {
                     console.error('Erro no upload da logo:', error);
                     if (logoStatus) logoStatus.textContent = 'Erro no upload da logo.';
-                    if (profileMessage) window.showMessage(profileMessage, 'Erro ao fazer upload da logo.', 'error');
+                    if (profileMessage) window.showMessage(profileMessage, 'Erro ao fazer upload da logo. Verifique as regras do Storage.', 'danger');
                 },
                 async () => {
                     const downloadURL = await storageRef.getDownloadURL();
@@ -437,7 +434,7 @@ async function handleProfileFormSubmit(event) {
         }
     } catch (error) {
         console.error('Erro ao salvar perfil:', error);
-        if (profileMessage) window.showMessage(profileMessage, 'Erro ao salvar perfil. Tente novamente.', 'error');
+        if (profileMessage) window.showMessage(profileMessage, 'Erro ao salvar perfil. Tente novamente. Verifique as regras do Firestore.', 'danger');
     }
 }
 
@@ -453,7 +450,7 @@ function handleLogoInputChange(event) {
         };
         reader.readAsDataURL(file);
     } else {
-        if (currentUser && currentUser.uid) {
+        if (currentUser && currentUser.uid && db) {
             db.collection('users').doc(currentUser.uid).get().then(doc => {
                 const userData = doc.data();
                 if (userData && userData.logoUrl) {
@@ -1148,7 +1145,7 @@ async function handleGeneratePdf() {
             document.body.appendChild(a);
             a.click();
             window.URL.revokeObjectURL(url);
-            if (quotationMessage) showMessage(quotationMessage, 'Orçamento PDF gerado e baixado com sucesso!', 'success');
+            if (quotationMessage) showMessage(quotationMessage, 'Orcamento PDF gerado e baixado com sucesso!', 'success');
         } else {
             const errorData = await response.json();
             throw new Error(errorData.message || 'Erro desconhecido ao gerar PDF.');
