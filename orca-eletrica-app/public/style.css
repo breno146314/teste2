@@ -5,7 +5,7 @@
     --accent-color: #28a745; /* Verde padrão do Bootstrap (success) */
     --text-color-dark: #2c3e50; /* Um cinza escuro para textos */
     --text-color-light: #f8f9fa; /* Branco Off-white */
-    --sidebar-width: 250px; /* Largura da sidebar */
+    --sidebar-width: 250px; /* Variável para largura da sidebar */
 }
 
 /* --- Base e Reset Básico --- */
@@ -157,8 +157,15 @@ html { scroll-padding-top: 56px; }
         display: none !important; /* Esconde a sidebar fixa em mobile */
     }
     #mobileOffcanvas {
-        display: block !important; /* Mostra o offcanvas em mobile (para ser controlado por JS) */
-        /* As classes offcanvas do Bootstrap já cuidam do hide/show, transform, etc. */
+        /* Estas classes e atributos Bootstrap são adicionados no HTML do #mobileOffcanvas */
+        /* e gerenciados pelo JS do Bootstrap para o comportamento offcanvas. */
+        /* O offcanvas do Bootstrap já terá left: -100%, transform: translateX(-100%) por padrão */
+        display: block !important; /* Força a exibição do offcanvas em mobile (para ser controlado por JS) */
+        position: fixed; /* Permanece fixed para o efeito offcanvas */
+        height: 100vh; /* Ocupa toda a altura */
+        z-index: 1050; /* Z-index mais alto que o navbar para sobrepor */
+        box-shadow: 0 0 10px rgba(0,0,0,0.3); /* Sombra para o efeito de deslize */
+        /* Remova margin-left calc que pode estar aqui, pois offcanvas gerencia com transform */
     }
 
     /* O conteúdo principal sempre ocupa 100% da largura em mobile */
