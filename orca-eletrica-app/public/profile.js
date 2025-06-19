@@ -8,6 +8,8 @@
 // --- Variáveis para Referências a Elementos HTML (serão atribuídas APENAS EM initProfilePage) ---
 // **CORREÇÃO:** Estas variáveis agora SÃO DECLARADAS SEM VALOR INICIAL GLOBALMENTE.
 // Serão atribuídas com document.getElementById() DENTRO de initProfilePage.
+// REMOVA AS DECLARAÇÕES 'let elemento = null;' DO TOPO SE EXISTIREM
+// Elas serão apenas:
 let profileForm; let usernameInput; let emailInput; let companyNameInput;
 let cnpjInput; let companyAddressInput; let companyPhoneInput;
 let companyLogoInput; let logoPreview; let logoStatus;
@@ -108,7 +110,7 @@ async function loadProfileData(uid) {
     console.log("profile.js: Tentando carregar dados do usuário UID:", uid);
     try {
         const userDocRef = db.collection('users').doc(uid);
-        const userDoc = await userDocRef.get();
+        const userDoc = await userDocRef.get(); // <<-- ATENÇÃO: ERROS DE PERMISSÃO AQUI PODEM CAUSAR FALHA SILENCIOSA -->>
         
         if (userDoc.exists) {
             console.log("profile.js: Documento do usuário encontrado. Preenchendo campos.");
@@ -181,7 +183,7 @@ async function handleProfileFormSubmit(event) {
 
             if (logoStatus) logoStatus.textContent = 'Fazendo upload da logo...';
             console.log("profile.js: Iniciando upload da logo.");
-            const storageRef = storage.ref(`user-logos/${currentUser.uid}/logo.png`);
+            const storageRef = storage.ref(`user-logos/${currentUser.uid}/logo.png`); // Caminho no Storage
             const uploadTask = storageRef.put(file);
 
             uploadTask.on('state_changed', 
