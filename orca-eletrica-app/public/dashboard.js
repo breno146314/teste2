@@ -91,7 +91,7 @@ function showMessage(element, msg, type) {
         element.className = `alert alert-${type} mt-3 text-center`;
         setTimeout(() => {
             element.textContent = '';
-            element.className = 'message mt-3 text-center`; // Retorna para a classe base
+            element.className = 'message mt-3 text-center'; // Retorna para a classe base
         }, 3000);
     }
 }
@@ -290,7 +290,7 @@ sidebarNavLinks.forEach(link => {
 if (sidebarToggleBtn) {
     sidebarToggleBtn.addEventListener('click', () => {
         const offcanvasElement = document.getElementById('sidebarOffcanvas');
-        // A instancia do offcanvas já pode existir se foi aberta antes
+        // A instancia do offcanvas ja pode existir se foi aberta antes
         let offcanvas = bootstrap.Offcanvas.getInstance(offcanvasElement);
         if (!offcanvas) { // Se nao existe, cria uma nova
             offcanvas = new bootstrap.Offcanvas(offcanvasElement);
@@ -595,7 +595,7 @@ window.initManageServicesPage = async function(user, firestoreDb, firebaseAuth) 
 // Funcoes auxiliares para manage-services.js (todas marcadas como async se usam await)
 async function loadServices(uid) {
     if (!servicesList) return;
-    servicesList.innerHTML = '<tr><td colspan="4" class="text-center text-muted">Carregando serviços...</td></tr>';
+    servicesList.innerHTML = '<tr><td colspan="4" class="text-center text-muted">Carregando servicos...</td></tr>';
     if (noServicesMessage) noServicesMessage.style.display = 'none';
 
     try {
@@ -618,8 +618,8 @@ async function loadServices(uid) {
             });
         }
     } catch (error) {
-        console.error('Erro ao carregar serviços:', error);
-        if (serviceMessage) showMessage(serviceMessage, 'Erro ao carregar serviços.', 'error');
+        console.error('Erro ao carregar servicos:', error);
+        if (serviceMessage) showMessage(serviceMessage, 'Erro ao carregar servicos.', 'error');
         servicesList.innerHTML = '<tr><td colspan="4" class="text-center text-muted">Erro ao carregar.</td></tr>';
     }
 }
@@ -763,7 +763,7 @@ async function handleMaterialListClick(e) {
         if (confirm('Tem certeza que deseja excluir este material?')) {
             try {
                 await db.collection('users').doc(currentUser.uid).collection('materials').doc(id).delete();
-                if (materialMessage) showMessage(materialMessage, 'Material excluído com sucesso!', 'success');
+                if (materialMessage) showMessage(materialMessage, 'Material excluido com sucesso!', 'success');
                 loadMaterials(currentUser.uid);
             } catch (error) {
                 console.error('Erro ao excluir material:', error);
@@ -822,7 +822,7 @@ window.initCreateQuotationPage = async function(user, firestoreDb, firebaseAuth,
 
     quotationMessage = document.getElementById('quotationMessage');
 
-    currentQuotationItems = []; // Reinicia os itens do orçamento
+    currentQuotationItems = []; // Reinicia os itens do orcamento
 
     // Remove listeners antigos
     if (predefinedQuoteItemSearchInput) predefinedQuoteItemSearchInput.removeEventListener('input', handlePredefinedQuoteItemSearchInput);
@@ -870,8 +870,8 @@ window.initCreateQuotationPage = async function(user, firestoreDb, firebaseAuth,
 
     // Carregar itens disponiveis (ambos predefinidos e do usuario)
     if (currentUser) {
-        await loadPredefinedItemsForQuotation(); // Nova funcao para carregar predefinidos
-        await loadUserItemsForQuotation(currentUser.uid); // Funcao existente para itens do usuario
+        await loadPredefinedItemsForQuotation();
+        await loadUserItemsForQuotation(currentUser.uid);
     }
     calculateTotal();
     renderQuotationItems();
@@ -947,7 +947,7 @@ function handlePredefinedQuoteResultsClick(e) {
         const description = btn.dataset.description;
         const unit = btn.dataset.unit;
         const price = parseFloat(btn.dataset.price);
-        addItemToQuotation(name, description, unit, price, 1); // Quantidade padrao 1
+        addItemToQuotation(name, description, unit, price, 1);
         if (predefinedQuoteItemSearchInput) predefinedQuoteItemSearchInput.value = '';
         if (predefinedQuoteResultsDiv) predefinedQuoteResultsDiv.classList.remove('active');
         if (quotationMessage) showMessage(quotationMessage, `${name} adicionado do item padrao!`, 'success');
@@ -982,4 +982,230 @@ function handleUserItemSearchInput(e) {
     );
     if (filteredItems.length === 0) {
         if (userSearchResultsDiv) userSearchResultsDiv.innerHTML = '<div class="list-group-item text-center text-muted">Nenhum resultado encontrado.</div>';
-        if (userSearchResultsDiv) userSearchResultsDiv.classList.
+        if (userSearchResultsDiv) userSearchResultsDiv.classList.add('active'); return;
+    }
+    filteredItems.forEach(item => {
+        const resultItem = document.createElement('div');
+        itemElement.classList.add('list-group-item', 'list-group-item-action', 'd-flex', 'justify-content-between', 'align-items-center');
+        resultItem.innerHTML = `
+            <div>
+                <strong>${item.name}</strong> (${item.unit}) <br>
+                <small class="text-muted">R$ ${formatCurrency(item.price)} ${item.description ? `- ${item.description}` : ''}</small>
+            </div>
+            <button class="btn btn-sm btn-outline-primary add-to-quotation-btn"
+                    data-name="${item.name}"
+                    data-description="${item.description || ''}"
+                    data-unit="${item.unit}"
+                    data-price="${item.price}"
+                    data-source="user">
+                Add
+            </button>
+        `;
+        if (userSearchResultsDiv) userSearchResultsDiv.appendChild(resultItem);
+    });
+    if (userSearchResultsDiv) userSearchResultsDiv.classList.add('active');
+}
+
+function handleDocumentClickToHideUserSearchResults(e) {
+    if (userItemSearchInput && userSearchResultsDiv && !userItemSearchInput.contains(e.target) && !userSearchResultsDiv.contains(e.target)) {
+        userSearchResultsDiv.classList.remove('active');
+    }
+}
+
+function handleUserSearchResultsClick(e) {
+    if (e.target.matches('.add-to-quotation-btn') || e.target.closest('.add-to-quotation-btn')) {
+        const btn = e.target.closest('.add-to-quotation-btn');
+        const name = btn.dataset.name;
+        const description = btn.dataset.description;
+        const unit = btn.dataset.unit;
+        const price = parseFloat(btn.dataset.price);
+        addItemToQuotation(name, description, unit, price, 1);
+        if (userItemSearchInput) userItemSearchInput.value = '';
+        if (userSearchResultsDiv) userSearchResultsDiv.classList.remove('active');
+        if (quotationMessage) showMessage(quotationMessage, `${name} adicionado da sua lista!`, 'success');
+    }
+}
+
+function handleAddManualItem() {
+    const name = manualItemNameInput.value;
+    const description = manualItemDescriptionInput.value;
+    const unit = manualItemUnitInput.value;
+    const price = parseFloat(manualItemPriceInput.value);
+    const quantity = parseInt(manualItemQuantityInput.value);
+
+    if (!name || isNaN(price) || price < 0 || isNaN(quantity) || quantity <= 0) {
+        if (quotationMessage) showMessage(quotationMessage, 'Preencha todos os campos obrigatorios do item manual (Nome, Preco, Qtd.).', 'error');
+        return;
+    }
+    addItemToQuotation(name, description, unit, price, quantity);
+    manualItemNameInput.value = ''; manualItemDescriptionInput.value = ''; manualItemUnitInput.value = '';
+    manualItemPriceInput.value = ''; manualItemQuantityInput.value = '1';
+    if (quotationMessage) showMessage(quotationMessage, 'Item manual adicionado!', 'success');
+}
+
+function addItemToQuotation(name, description, unit, price, quantity) {
+    const item = { id: Date.now(), name, description: description || '', unit, price, quantity, total: price * quantity };
+    currentQuotationItems.push(item);
+    renderQuotationItems();
+    calculateTotal();
+}
+
+function renderQuotationItems() {
+    if (!quotationItemsList) return;
+    quotationItemsList.innerHTML = '';
+    if (currentQuotationItems.length === 0) {
+        quotationItemsList.innerHTML = '<tr><td colspan="7" class="text-center text-muted">Nenhum item adicionado ainda.</td></tr>';
+        return;
+    }
+    currentQuotationItems.forEach(item => {
+        const row = quotationItemsList.insertRow();
+        row.dataset.id = item.id;
+        row.innerHTML = `
+            <td>${item.name}</td>
+            <td>${item.description}</td>
+            <td>${item.unit}</td>
+            <td><input type="number" class="form-control form-control-sm item-quantity-input" value="${item.quantity}" min="1" data-id="${item.id}" style="width: 70px;"></td>
+            <td>${formatCurrency(item.price)}</td>
+            <td>${formatCurrency(item.total)}</td>
+            <td><button class="btn btn-danger btn-sm remove-item-btn" data-id="${item.id}"><i class="bi bi-trash"></i></button></td>
+        `;
+    });
+}
+
+function handleQuotationItemsChange(e) {
+    if (e.target.matches('.item-quantity-input')) {
+        const itemId = parseInt(e.target.dataset.id);
+        const newQuantity = parseInt(e.target.value);
+        const itemIndex = currentQuotationItems.findIndex(item => item.id === itemId);
+        if (itemIndex !== -1 && !isNaN(newQuantity) && newQuantity > 0) {
+            currentQuotationItems[itemIndex].quantity = newQuantity;
+            currentQuotationItems[itemIndex].total = currentQuotationItems[itemIndex].price * newQuantity;
+            renderQuotationItems();
+            calculateTotal();
+        } else { e.target.value = currentQuotationItems[itemIndex].quantity; }
+    }
+}
+
+function handleQuotationItemsClick(e) {
+    if (e.target.matches('.remove-item-btn') || e.target.closest('.remove-item-btn')) {
+        const btn = e.target.closest('.remove-item-btn');
+        const itemId = parseInt(btn.dataset.id);
+        if (confirm('Tem certeza que deseja remover este item do orcamento?')) {
+            currentQuotationItems = currentQuotationItems.filter(item => item.id !== itemId);
+            renderQuotationItems();
+            calculateTotal();
+            if (quotationMessage) showMessage(quotationMessage, 'Item removido!', 'info');
+        }
+    }
+}
+
+function calculateTotal() {
+    let subtotal = currentQuotationItems.reduce((sum, item) => sum + item.total, 0);
+    let total = subtotal;
+    const discountValue = discountInput.value;
+    if (discountValue) {
+        let discountAmount = 0;
+        if (discountValue.includes('%')) {
+            const percentage = parseFloat(discountValue.replace('%', '')) / 100;
+            if (!isNaN(percentage)) { discountAmount = subtotal * percentage; }
+        } else { discountAmount = parseFloat(discountValue); }
+        if (!isNaN(discountAmount)) {
+            total = subtotal - discountAmount;
+            if (total < 0) total = 0;
+        }
+    }
+    subtotalDisplay.textContent = formatCurrency(subtotal);
+    totalDisplay.textContent = formatCurrency(total);
+}
+
+async function handleGeneratePdf() {
+    if (currentQuotationItems.length === 0) {
+        if (quotationMessage) showMessage(quotationMessage, 'Adicione pelo menos um item ao orcamento antes de gerar o PDF.', 'error');
+        return;
+    }
+    if (!clientNameInput.value) {
+        if (quotationMessage) showMessage(quotationMessage, 'Preencha o nome do cliente antes de gerar o PDF.', 'error');
+        return;
+    }
+    if (quotationMessage) showMessage(quotationMessage, 'Gerando orcamento em PDF... Aguarde!', 'info');
+
+    const quotationData = {
+        client: {
+            name: clientNameInput.value, email: clientEmailInput.value,
+            phone: clientPhoneInput.value, address: clientAddressInput.value,
+        },
+        items: currentQuotationItems,
+        subtotal: parseFloat(subtotalDisplay.textContent.replace('R$', '').replace(',', '.')),
+        discount: parseFloat(discountInput.value.replace('%', '').replace(',', '.')) || 0,
+        total: parseFloat(totalDisplay.textContent.replace('R$', '').replace(',', '.')),
+        validityDays: parseInt(validityDaysInput.value),
+        paymentTerms: paymentTermsInput.value,
+        observations: observationsInput.value,
+    };
+    try {
+        const userDoc = await db.collection('users').doc(currentUser.uid).get();
+        if (userDoc.exists) {
+            quotationData.companyInfo = userDoc.data();
+        } else {
+            if (quotationMessage) showMessage(quotationMessage, 'Erro: Dados da empresa nao encontrados. Por favor, atualize seu perfil.', 'error');
+            return;
+        }
+        
+        const response = await fetch('SUA_URL_DA_CLOUD_FUNCTION_GERAR_PDF', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${await auth.currentUser.getIdToken()}`
+            },
+            body: JSON.stringify(quotationData)
+        });
+
+        if (response.ok) {
+            const blob = await response.blob();
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.style.display = 'none';
+            a.href = url;
+            a.download = `Orcamento_${quotationData.client.name.replace(/\s+/g, '_')}_${new Date().toLocaleDateString('pt-BR').replace(/\//g, '-')}.pdf`;
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+            if (quotationMessage) showMessage(quotationMessage, 'Orcamento PDF gerado e baixado com sucesso!', 'success');
+        } else {
+            const errorData = await response.json();
+            throw new Error(errorData.message || 'Erro desconhecido ao gerar PDF.');
+        }
+    } catch (error) {
+        console.error('Erro ao gerar PDF:', error);
+        if (quotationMessage) showMessage(quotationMessage, `Erro ao gerar PDF: ${error.message}`, 'error');
+    }
+}
+
+function handleSaveDraft() {
+    if (quotationMessage) showMessage(quotationMessage, 'Funcionalidade de Salvar Rascunho em construcao!', 'info');
+}
+
+function handleClearQuotation() {
+    if (confirm('Tem certeza que deseja limpar todo o orcamento atual?')) {
+        currentQuotationItems = [];
+        renderQuotationItems();
+        calculateTotal();
+        if (clientNameInput) clientNameInput.value = '';
+        if (clientEmailInput) clientEmailInput.value = '';
+        if (clientPhoneInput) clientPhoneInput.value = '';
+        if (clientAddressInput) clientAddressInput.value = '';
+        if (discountInput) discountInput.value = '0';
+        if (validityDaysInput) validityDaysInput.value = '30';
+        if (paymentTermsInput) paymentTermsInput.value = '';
+        if (observationsInput) observationsInput.value = '';
+        if (quotationMessage) showMessage(quotationMessage, 'Orcamento limpo!', 'info');
+    }
+}
+
+// --- Funções de Inicialização para public/my-quotations.js (Futuro) ---
+window.initMyQuotationsPage = async function(user, firestoreDb, firebaseAuth) {
+    currentUser = user;
+    db = firestoreDb;
+    auth = firebaseAuth;
+    console.log('Pagina de Meus Orcamentos inicializada.');
+};
