@@ -5,7 +5,7 @@
     --accent-color: #28a745; /* Verde padrão do Bootstrap (success) */
     --text-color-dark: #2c3e50; /* Um cinza escuro para textos */
     --text-color-light: #f8f9fa; /* Branco Off-white */
-    --sidebar-width: 250px; /* Variável para largura da sidebar */
+    --sidebar-width: 250px; /* Largura da sidebar */
 }
 
 /* --- Base e Reset Básico --- */
@@ -50,10 +50,7 @@ body {
     color: var(--text-color-light); padding: 80px 0;
 }
 .testimonial-section h2 { color: var(--text-color-light); }
-section h2 {
-    position: relative; padding-bottom: 10px; margin-bottom: 40px !important;
-}
-section h2::after {
+section h2::after { /* Linha abaixo dos títulos de seção */
     content: ''; position: absolute; bottom: 0; left: 50%; transform: translateX(-50%);
     width: 60px; height: 3px; background-color: var(--primary-color); border-radius: 5px;
 }
@@ -73,8 +70,8 @@ html { scroll-padding-top: 56px; }
     width: 100%; /* Garante que o wrapper ocupa a largura total */
 }
 
-/* Sidebar para Desktop (visível por padrão e fixada) */
-#sidebar-wrapper {
+/* Sidebar Fixa para Desktop */
+#desktopSidebar {
     min-width: var(--sidebar-width);
     max-width: var(--sidebar-width);
     transition: margin-left .25s ease-out; /* Transição suave para esconder/mostrar */
@@ -88,11 +85,11 @@ html { scroll-padding-top: 56px; }
 }
 
 /* Estado 'toggled' para esconder a sidebar em desktop */
-#wrapper.toggled #sidebar-wrapper {
+#wrapper.toggled #desktopSidebar {
     margin-left: calc(-1 * var(--sidebar-width)); /* Esconde a sidebar para a esquerda */
 }
 
-/* Conteúdo Principal da Página (para Desktop) */
+/* Conteúdo Principal da Página */
 #page-content-wrapper {
     flex-grow: 1; /* Ocupa o restante do espaço */
     transition: all .25s ease-out; /* Animação para ajustar a margem */
@@ -109,65 +106,76 @@ html { scroll-padding-top: 56px; }
     width: 100%;
 }
 
-/* Esconder o botão de toggle da sidebar da navbar em desktop por padrão */
-.navbar #sidebarToggle {
-    display: none; /* Inicia escondido, será mostrado em desktop via media query */
+
+/* Estilos para elementos internos da sidebar */
+.sidebar-heading {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+.list-group-item.active {
+    background-color: var(--primary-color) !important;
+    border-color: var(--primary-color) !important;
 }
 
 
 /* --- Responsividade do Dashboard --- */
 
-@media (min-width: 992px) { /* Para telas maiores ou iguais a 992px (Desktop) */
-    #sidebar-wrapper {
-        margin-left: 0; /* Sidebar visível por padrão */
-        position: fixed; /* Continua fixa */
-        top: 0;
-        left: 0;
+/* Para telas maiores ou iguais a 992px (Desktop) */
+@media (min-width: 992px) {
+    #desktopSidebar {
+        display: block !important; /* Força a visibilidade da sidebar fixa */
+    }
+    #mobileOffcanvas {
+        display: none !important; /* Esconde o offcanvas em desktop */
+    }
+
+    #desktopSidebar {
+        margin-left: 0; /* Visível */
+        position: fixed; top: 0; left: 0; /* Fixa */
     }
     #page-content-wrapper {
-        margin-left: var(--sidebar-width); /* Conteúdo com margem para a sidebar */
-        width: calc(100% - var(--sidebar-width)); /* Largura ajustada */
+        margin-left: var(--sidebar-width); /* Empurra o conteúdo */
+        width: calc(100% - var(--sidebar-width)); /* Ajusta largura */
     }
     /* Comportamento de toggle para desktop */
-    #wrapper.toggled #sidebar-wrapper {
+    #wrapper.toggled #desktopSidebar {
         margin-left: calc(-1 * var(--sidebar-width)); /* Esconde sidebar */
     }
     #wrapper.toggled #page-content-wrapper {
-        margin-left: 0; /* Conteúdo volta para a posição normal */
+        margin-left: 0; /* Conteúdo ocupa 100% */
         width: 100%;
     }
+    /* Botão de toggle na navbar: visível em desktop */
     .navbar #sidebarToggle {
-        display: block; /* Mostra o botão de toggle em desktop */
+        display: block !important; /* Mostra o botão para desktop */
     }
 }
 
-@media (max-width: 991.98px) { /* Para telas menores que 992px (Mobile/Tablet) */
-    /* A sidebar se comporta como um offcanvas do Bootstrap em mobile */
-    #sidebar-wrapper {
-        /* As classes offcanvas do Bootstrap já cuidam do hide/show em mobile */
-        margin-left: calc(-1 * var(--sidebar-width)); /* Garante que está escondida por padrao */
-        position: fixed; /* Permanece fixed para o efeito offcanvas */
-        height: 100vh; /* Ocupa toda a altura */
-        z-index: 1050; /* Z-index mais alto que o navbar para sobrepor */
-        box-shadow: 0 0 10px rgba(0,0,0,0.3); /* Sombra para o efeito de deslize */
-        /* Adicione estas classes offcanvas para o HTML do sidebar-wrapper APENAS EM MOBILE */
-        /* Ex: class="offcanvas offcanvas-start bg-dark ..." */
+/* Para telas menores que 992px (Mobile/Tablet) */
+@media (max-width: 991.98px) {
+    /* desktopSidebar escondida, mobileOffcanvas visível (via JS/Bootstrap Offcanvas) */
+    #desktopSidebar {
+        display: none !important; /* Esconde a sidebar fixa em mobile */
     }
-    /* #sidebar-wrapper quando for offcanvas, ele já terá essas classes, então removemos daqui para evitar conflito */
+    #mobileOffcanvas {
+        display: block !important; /* Mostra o offcanvas em mobile (para ser controlado por JS) */
+        /* As classes offcanvas do Bootstrap já cuidam do hide/show, transform, etc. */
+    }
+
+    /* O conteúdo principal sempre ocupa 100% da largura em mobile */
     #page-content-wrapper {
-        margin-left: 0; /* O conteúdo nao é empurrado pela sidebar em mobile */
-        width: 100%; /* Ocupa 100% da largura */
+        margin-left: 0;
+        width: 100%;
     }
-    /* O botão de toggle da sidebar para mobile agora é tratado pelo HTML/JS do Bootstrap Offcanvas */
-    .navbar .btn-primary { /* O botão de toggle na navbar */
-        display: block !important; /* Força a exibição em mobile */
-    }
-    /* Esconde o e-mail do usuário logado na sidebar em mobile (já que a sidebar é offcanvas) */
+    /* Esconde elementos específicos da sidebar que são para desktop */
     .sidebar-heading small {
-        display: none;
+        display: none !important;
     }
-    /* Esconde o botão de logout da navbar em mobile se ele estiver duplicado (já que o logoutOffcanvas será o principal) */
+    /* Oculta botões de logout da navbar em mobile para evitar duplicação com o offcanvas */
     #logoutButtonNav {
         display: none !important;
+    }
+    /* Garante que o botão de toggle na navbar esteja visível em mobile */
+    .navbar .btn-primary {
+        display: block !important;
     }
 }

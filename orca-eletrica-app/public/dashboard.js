@@ -26,13 +26,14 @@ const welcomeMessageNav = document.getElementById('welcomeMessageNav'); // Mensa
 const logoutButtonNav = document.getElementById('logoutButtonNav'); // Botão Sair da Navbar (desktop)
 const logoutButton = document.getElementById('logoutButton'); // Botão Sair da Sidebar/Offcanvas (mobile)
 
-const sidebarNavLinks = document.querySelectorAll('#sidebar-wrapper .list-group-item'); // Links de navegação da sidebar
+const sidebarNavLinks = document.querySelectorAll('.list-group-item[data-section]'); // Links de navegação da sidebar
 const contentSections = document.querySelectorAll('#page-content-wrapper .content-section'); // Seções de conteúdo principal
 const sidebarToggleBtn = document.getElementById('sidebarToggle'); // Botão de toggle da sidebar (hambúrguer)
 const wrapper = document.getElementById('wrapper'); // Elemento #wrapper para o toggle da sidebar (desktop)
-const sidebarWrapperElement = document.getElementById('sidebar-wrapper'); // Referência ao elemento sidebar para o Offcanvas
+const desktopSidebarElement = document.getElementById('desktopSidebar'); // Referência à sidebar fixa de desktop
+const mobileOffcanvasElement = document.getElementById('mobileOffcanvas'); // Referência ao offcanvas mobile
 
-const dashboardQuickActionCards = document.querySelectorAll('#dashboardOverview [data-section]'); // Cards de atalho na Visão Geral
+const dashboardQuickActionCards = document.querySelectorAll('#dashboardOverview [data-section]');
 
 
 // --- Variáveis para Referências a Elementos das Páginas Carregadas Dinamicamente ---
@@ -53,7 +54,7 @@ let clientNameInput, clientEmailInput, clientPhoneInput, clientAddressInput,
     generatePdfBtn, saveDraftBtn, clearQuotationBtn, quotationMessage,
     currentQuotationItems = [];
 
-let allPredefinedQuoteItems = []; // Para a página de orçamento
+let allPredefinedQuoteItems = [];
 
 
 // --- Variáveis de Estado Global do Dashboard ---
@@ -90,33 +91,29 @@ function showMessage(element, msg, type) {
 
 /**
  * Exibe uma seção específica do dashboard e carrega seu conteúdo dinamicamente.
- * @param {string} sectionId O ID da seção a ser exibida (ex: 'dashboardOverview', 'accountSettingsSection').
+ * @param {string} sectionId O ID da seção a ser exibida.
  */
 async function showSection(sectionId) {
-    // Esconde todas as seções de conteúdo
     contentSections.forEach(section => {
         section.classList.remove('active');
-        section.style.display = 'none'; // Garante que o Bootstrap não interfira com display: block
+        section.style.display = 'none';
     });
 
-    // Remove a classe 'active' de todos os links da sidebar
     sidebarNavLinks.forEach(link => {
         link.classList.remove('active');
     });
 
-    // Mostra a seção desejada e ativa o link correspondente na sidebar
     const targetSection = document.getElementById(sectionId);
     if (targetSection) {
         targetSection.classList.add('active');
-        targetSection.style.display = 'block'; // Garante que a seção apareça
-        const activeLink = document.querySelector(`#sidebar-wrapper .list-group-item[data-section="${sectionId}"]`);
+        targetSection.style.display = 'block';
+        const activeLink = document.querySelector(`.list-group-item[data-section="${sectionId}"]`);
         if (activeLink) {
             activeLink.classList.add('active');
         }
     }
 
-    // --- Lógica para Carregar Conteúdo Dinamicamente ---
-    if (sectionId !== 'dashboardOverview') { // Não limpa a seção de Visão Geral
+    if (sectionId !== 'dashboardOverview') {
         const sectionMap = {
             'manageServicesSection': { url: '/manage-services.html', script: 'manage-services.js', initFunc: 'initManageServicesPage' },
             'accountSettingsSection': { url: '/profile.html', script: 'profile.js', initFunc: 'initProfilePage' },
@@ -126,7 +123,6 @@ async function showSection(sectionId) {
 
         const currentSectionInfo = sectionMap[sectionId];
         if (currentSectionInfo) {
-            // Placeholder de carregamento
             targetSection.innerHTML = `
                 <div class="text-center py-5">
                     <div class="spinner-border text-primary" role="status">
@@ -135,7 +131,6 @@ async function showSection(sectionId) {
                     <p class="mt-3">Carregando conteúdo...</p>
                 </div>
             `;
-            // Espera o carregamento do conteúdo e inicializa a página
             await loadContentIntoSection(currentSectionInfo.url, targetSection, currentSectionInfo.script, currentSectionInfo.initFunc);
         } else {
             console.warn(`Seção '${sectionId}' não possui configuração de carregamento dinâmico.`);
@@ -146,12 +141,8 @@ async function showSection(sectionId) {
 
 /**
  * Carrega o conteúdo HTML de uma URL e injeta em uma seção,
- * então remove scripts antigos e anexa o novo script JS associado,
+ * remove scripts antigos e anexa o novo script JS associado,
  * chamando sua função de inicialização.
- * @param {string} url O caminho para o arquivo HTML a ser carregado.
- * @param {HTMLElement} targetSection O elemento HTML onde o conteúdo será injetado.
- * @param {string} scriptToLoad O caminho para o arquivo JS a ser executado.
- * @param {string} initFunctionName O nome da função global no script carregado para inicializar.
  */
 async function loadContentIntoSection(url, targetSection, scriptToLoad, initFunctionName) {
     try {
@@ -161,7 +152,6 @@ async function loadContentIntoSection(url, targetSection, scriptToLoad, initFunc
         }
         const html = await response.text();
 
-        // Extrai o conteúdo relevante do HTML do fragmento (apenas o que está dentro do .container ou body)
         const parser = new DOMParser();
         const doc = parser.parseFromString(html, 'text/html');
         const contentToInjectElement = doc.body.querySelector('.container') || doc.body;
@@ -176,12 +166,10 @@ async function loadContentIntoSection(url, targetSection, scriptToLoad, initFunc
         // Cria e anexa o novo script ao body
         const scriptElement = document.createElement('script');
         scriptElement.src = scriptToLoad;
-        scriptElement.id = `dynamic-script-${targetSection.id}`; // Adiciona um ID único para fácil remoção futura
+        scriptElement.id = `dynamic-script-${targetSection.id}`;
         scriptElement.onload = () => {
             console.log(`${scriptToLoad} carregado e executado.`);
-            // Chama a função de inicialização específica do script carregado, se existir
             if (window[initFunctionName] && typeof window[initFunctionName] === 'function') {
-                // Passa as dependências do Firebase como argumentos para as funções de inicialização das páginas
                 window[initFunctionName](currentUser, db, auth, storage);
             } else {
                 console.warn(`Função de inicialização '${initFunctionName}' não encontrada em ${scriptToLoad}.`);
@@ -191,7 +179,7 @@ async function loadContentIntoSection(url, targetSection, scriptToLoad, initFunc
             console.error(`Erro ao carregar script ${scriptToLoad}:`, e);
             targetSection.innerHTML = `<div class="alert alert-danger">Erro ao carregar o conteúdo. Por favor, tente novamente.</div>`;
         };
-        document.body.appendChild(scriptElement); // Anexa o script ao body
+        document.body.appendChild(scriptElement);
 
     } catch (error) {
         console.error(`Erro ao carregar conteúdo de ${url}:`, error);
@@ -201,22 +189,16 @@ async function loadContentIntoSection(url, targetSection, scriptToLoad, initFunc
 
 
 // --- Autenticação e Carregamento Inicial do Dashboard ---
-// Este listener é o ponto de controle principal para o estado de autenticação
 auth.onAuthStateChanged(async (user) => {
-    // A flag `authInitialized` garante que só redirecionamos para o login
-    // depois que o Firebase Auth tiver uma resposta definitiva sobre o usuário.
     if (!authInitialized) {
         authInitialized = true;
     }
 
     if (user) {
-        currentUser = user; // Atribui o usuário logado à variável global
+        currentUser = user;
         console.log('Usuário logado no dashboard:', user.email, user.uid);
+        if (loggedInUserEmail) loggedInUserEmail.textContent = user.email;
         
-        // Exibe o email do usuário na sidebar (desktop)
-        if (loggedInUserEmail) loggedInUserEmail.textContent = user.email; 
-        
-        // Tenta buscar o nome de usuário do Firestore para mensagem de boas-vindas na navbar
         try {
             const userDoc = await db.collection('users').doc(user.uid).get();
             if (userDoc.exists) {
@@ -230,25 +212,20 @@ auth.onAuthStateChanged(async (user) => {
             if (welcomeMessageNav) welcomeMessageNav.textContent = `Olá, ${user.email}!`;
         }
         
-        // Exibe a seção de Visão Geral por padrão ao logar, se nenhuma seção estiver ativa
         if (!document.querySelector('.content-section.active')) {
             showSection('dashboardOverview');
         }
 
     } else {
-        // Usuário NÃO está logado
         console.log('Nenhum usuário logado. Verificando se precisa redirecionar...');
-        // SOMENTE redireciona se o Firebase Auth já tiver tido tempo de inicializar e determinar
-        // que o usuário NÃO está logado de forma definitiva. Isso evita o loop.
         if (authInitialized) {
-            window.location.href = '/index.html'; // Redireciona para a landing page (login/cadastro)
+            window.location.href = '/index.html';
         }
     }
 });
 
 
 // --- Lógica de Logout ---
-// Botão de sair na navbar (desktop)
 if (logoutButtonNav) {
     logoutButtonNav.addEventListener('click', async () => {
         try {
@@ -261,9 +238,7 @@ if (logoutButtonNav) {
     });
 }
 
-// Botão de sair no offcanvas (mobile)
-// No novo HTML, o botão de logout no offcanvas TEM o ID 'logoutButton'.
-if (logoutButton) { // Usamos 'logoutButton' para o offcanvas
+if (logoutButton) { // Este é o botão de sair da sidebar (agora 'logoutButton')
     logoutButton.addEventListener('click', async () => {
         try {
             await auth.signOut();
@@ -279,35 +254,32 @@ if (logoutButton) { // Usamos 'logoutButton' para o offcanvas
 // --- Event Listeners para Links da Sidebar ---
 sidebarNavLinks.forEach(link => {
     link.addEventListener('click', (e) => {
-        e.preventDefault(); // Impede o comportamento padrão do link
-        const sectionId = e.target.dataset.section; // Obtém o ID da seção a ser mostrada
-        showSection(sectionId); // Chama a função para mostrar a seção
+        e.preventDefault();
+        const sectionId = e.target.dataset.section;
+        showSection(sectionId);
         
-        // Fecha o offcanvas automaticamente após clicar no link (apenas em mobile)
-        const offcanvasElement = document.getElementById('sidebar-wrapper'); // Agora #sidebar-wrapper é o elemento do offcanvas em mobile
-        const offcanvas = bootstrap.Offcanvas.getInstance(offcanvasElement);
-        if (offcanvas) { // Verifica se uma instância do offcanvas existe (mobile)
-            offcanvas.hide(); // Oculta o offcanvas
+        // Fecha o offcanvas se estiver em mobile
+        if (window.innerWidth < 992) { // Mobile (quando a sidebar é um offcanvas)
+            const offcanvasInstance = bootstrap.Offcanvas.getInstance(mobileOffcanvasElement); // Usamos mobileOffcanvasElement aqui
+            if (offcanvasInstance) {
+                offcanvasInstance.hide();
+            }
         }
     });
 });
 
 // --- Event Listener para o Toggle da Sidebar (para Mobile e Desktop) ---
-// Este é o botão de hambúrguer na navbar que aparece em telas menores
 if (sidebarToggleBtn) {
     sidebarToggleBtn.addEventListener('click', () => {
-        const sidebarWrapperElement = document.getElementById('sidebar-wrapper');
-        
-        if (window.innerWidth >= 992) { // Desktop (largura de tela >= 992px)
-            // Para desktop, toggle a classe 'toggled' no #wrapper para empurrar/esconder a sidebar
-            wrapper.classList.toggle('toggled');
-        } else { // Mobile (largura de tela < 992px)
-            // Para mobile, atua como um offcanvas do Bootstrap
-            let offcanvas = bootstrap.Offcanvas.getInstance(sidebarWrapperElement);
-            if (!offcanvas) { // Se não existe instância, cria uma nova
-                offcanvas = new bootstrap.Offcanvas(sidebarWrapperElement);
+        if (window.innerWidth >= 992) { // Desktop
+            wrapper.classList.toggle('toggled'); // Toggle classe para esconder/mostrar sidebar fixa
+        } else { // Mobile
+            // Aciona o offcanvas via JS do Bootstrap
+            let offcanvasInstance = bootstrap.Offcanvas.getInstance(mobileOffcanvasElement); // Usa mobileOffcanvasElement aqui
+            if (!offcanvasInstance) {
+                offcanvasInstance = new bootstrap.Offcanvas(mobileOffcanvasElement);
             }
-            offcanvas.toggle(); // Alterna a visibilidade do offcanvas
+            offcanvasInstance.toggle();
         }
     });
 }
@@ -316,8 +288,8 @@ if (sidebarToggleBtn) {
 // --- Event Listeners para Cards de Ação Rápida no Dashboard (Visão Geral) ---
 dashboardQuickActionCards.forEach(card => {
     card.addEventListener('click', (e) => {
-        const sectionId = e.currentTarget.dataset.section; // Obtém o ID da seção do atributo data-section do card
-        showSection(sectionId); // Chama a função para mostrar a seção
+        const sectionId = e.currentTarget.dataset.section;
+        showSection(sectionId);
     });
 });
 
@@ -326,14 +298,14 @@ dashboardQuickActionCards.forEach(card => {
 // Estas funções são definidas como globais (window.funcao) para que o dashboard.js
 // possa chamá-las após carregar o HTML e o script correspondente.
 
-// Funções Auxiliares Gerais (usadas por várias páginas)
-// Elas estão no escopo global de dashboard.js e são acessíveis pelos scripts injetados.
-// Ex: window.formatCurrency = function(value) { return ... };
-// Ex: window.showMessage = function(element, msg, type) { ... };
+// Funções Auxiliares Gerais (compartilhadas)
+// NOTA: Estas funções (formatCurrency, showMessage) são definidas no escopo global deste dashboard.js.
+// Certifique-se de NÃO duplicá-las em profile.js, manage-services.js ou create-quotation.js.
+window.formatCurrency = formatCurrency;
+window.showMessage = showMessage;
 
 
 // --- Funções de Inicialização para public/profile.js ---
-// Esta função é chamada pelo dashboard.js após carregar profile.html e profile.js
 window.initProfilePage = async function(userObj, firestoreDb, firebaseAuth, firebaseStorage) {
     currentUser = userObj;
     db = firestoreDb;
@@ -366,6 +338,13 @@ window.initProfilePage = async function(userObj, firestoreDb, firebaseAuth, fire
         window.location.href = '/index.html';
     }
 
+    // Remover listeners antigos para evitar duplicação
+    if (profileForm) profileForm.removeEventListener('submit', handleProfileFormSubmit);
+    if (companyLogoInput) companyLogoInput.removeEventListener('change', handleLogoInputChange);
+    if (backToDashboardBtn) backToDashboardBtn.removeEventListener('click', () => window.showSection('dashboardOverview'));
+    if (changePasswordLink) changePasswordLink.removeEventListener('click', handleChangePassword);
+
+    // Re-adicionar Event Listeners
     if (profileForm) profileForm.addEventListener('submit', handleProfileFormSubmit);
     if (companyLogoInput) companyLogoInput.addEventListener('change', handleLogoInputChange);
     if (backToDashboardBtn) backToDashboardBtn.addEventListener('click', () => window.showSection('dashboardOverview'));
@@ -374,7 +353,7 @@ window.initProfilePage = async function(userObj, firestoreDb, firebaseAuth, fire
 
 // Funções auxiliares para profile.js (definidas globalmente para serem acessíveis)
 async function loadProfileData(uid) {
-    if (profileMessage) showMessage(profileMessage, '', '');
+    if (profileMessage) window.showMessage(profileMessage, '', '');
     try {
         const userDocRef = db.collection('users').doc(uid);
         const userDoc = await userDocRef.get();
@@ -406,17 +385,17 @@ async function loadProfileData(uid) {
         } else { console.log('Documento de usuário não encontrado no Firestore.'); }
     } catch (error) {
         console.error('Erro ao carregar dados do perfil:', error);
-        if (profileMessage) showMessage(profileMessage, 'Erro ao carregar dados do perfil.', 'error');
+        if (profileMessage) window.showMessage(profileMessage, 'Erro ao carregar dados do perfil.', 'error');
     }
 }
 
 async function handleProfileFormSubmit(event) {
     event.preventDefault();
     if (!currentUser) {
-        if (profileMessage) showMessage(profileMessage, 'Nenhum usuário logado para salvar o perfil.', 'error');
+        if (profileMessage) window.showMessage(profileMessage, 'Nenhum usuário logado para salvar o perfil.', 'error');
         return;
     }
-    if (profileMessage) showMessage(profileMessage, '', '');
+    if (profileMessage) window.showMessage(profileMessage, '', '');
     const dataToUpdate = {
         username: usernameInput.value, companyName: companyNameInput.value, cnpj: cnpjInput.value,
         companyAddress: companyAddressInput.value, companyPhone: companyPhoneInput.value,
@@ -427,7 +406,7 @@ async function handleProfileFormSubmit(event) {
             const file = companyLogoInput.files[0];
             const maxFileSize = 2 * 1024 * 1024;
             if (file.size > maxFileSize) {
-                if (profileMessage) showMessage(profileMessage, 'Erro: O arquivo da logo é muito grande (máx 2MB).', 'error');
+                if (profileMessage) window.showMessage(profileMessage, 'Erro: O arquivo da logo é muito grande (máx 2MB).', 'error');
                 return;
             }
             if (logoStatus) logoStatus.textContent = 'Fazendo upload da logo...';
@@ -441,7 +420,7 @@ async function handleProfileFormSubmit(event) {
                 (error) => {
                     console.error('Erro no upload da logo:', error);
                     if (logoStatus) logoStatus.textContent = 'Erro no upload da logo.';
-                    if (profileMessage) showMessage(profileMessage, 'Erro ao fazer upload da logo.', 'error');
+                    if (profileMessage) window.showMessage(profileMessage, 'Erro ao fazer upload da logo.', 'error');
                 },
                 async () => {
                     const downloadURL = await storageRef.getDownloadURL();
@@ -449,16 +428,16 @@ async function handleProfileFormSubmit(event) {
                     if (logoPreview) logoPreview.src = downloadURL;
                     if (logoStatus) logoStatus.textContent = 'Logo enviada com sucesso!';
                     await db.collection('users').doc(currentUser.uid).update(dataToUpdate);
-                    if (profileMessage) showMessage(profileMessage, 'Perfil atualizado com sucesso!', 'success');
+                    if (profileMessage) window.showMessage(profileMessage, 'Perfil atualizado com sucesso!', 'success');
                 }
             );
         } else {
             await db.collection('users').doc(currentUser.uid).update(dataToUpdate);
-            if (profileMessage) showMessage(profileMessage, 'Perfil atualizado com sucesso!', 'success');
+            if (profileMessage) window.showMessage(profileMessage, 'Perfil atualizado com sucesso!', 'success');
         }
     } catch (error) {
         console.error('Erro ao salvar perfil:', error);
-        if (profileMessage) showMessage(profileMessage, 'Erro ao salvar perfil. Tente novamente.', 'error');
+        if (profileMessage) window.showMessage(profileMessage, 'Erro ao salvar perfil. Tente novamente.', 'error');
     }
 }
 
@@ -1169,7 +1148,7 @@ async function handleGeneratePdf() {
             document.body.appendChild(a);
             a.click();
             window.URL.revokeObjectURL(url);
-            if (quotationMessage) showMessage(quotationMessage, 'Orcamento PDF gerado e baixado com sucesso!', 'success');
+            if (quotationMessage) showMessage(quotationMessage, 'Orçamento PDF gerado e baixado com sucesso!', 'success');
         } else {
             const errorData = await response.json();
             throw new Error(errorData.message || 'Erro desconhecido ao gerar PDF.');
