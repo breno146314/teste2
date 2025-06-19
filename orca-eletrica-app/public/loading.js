@@ -2,7 +2,7 @@
 
 // **IMPORTANTE:** Cole a configuração REAL do seu projeto Firebase aqui!
 // Esta é a mesma configuração que está em script.js e dashboard.js
-const firebaseConfig = {
+/*const firebaseConfig = {
     apiKey: "AIzaSyBvFAdgyg9ns3qo4ENSR0TATy1QdMGfgCI", // SUBSTITUA PELA SUA CHAVE API
     authDomain: "orca-eleltrica.firebaseapp.com",     // SUBSTITUA PELO SEU DOMÍNIO DE AUTENTICAÇÃO
     projectId: "orca-eleltrica",                      // SUBSTITUA PELO SEU ID DE PROJETO
@@ -13,7 +13,7 @@ const firebaseConfig = {
 };
 
 // Inicializa o Firebase
-firebase.initializeApp(firebaseConfig);
+firebase.initializeApp(firebaseConfig);*/
 
 // Obtém instância do Auth
 const auth = firebase.auth();
