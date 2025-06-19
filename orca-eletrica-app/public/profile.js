@@ -1,9 +1,8 @@
 // public/profile.js
 
 // **IMPORTANTE:** Cole a configuração REAL do seu projeto Firebase aqui!
-// Esta é a mesma configuração que está em script.js e dashboard.js
 const firebaseConfig = {
-    apiKey: "AIzaSyBvFAdgyg9ns3qo4ENSR0TATy1QdMGfgCI", // SUBSTITUA PELA SUA CHAVE API
+    apiKey: "SUA_API_KEY", // SUBSTITUA PELA SUA CHAVE API
     authDomain: "orca-eleltrica.firebaseapp.com",     // SUBSTITUA PELO SEU DOMÍNIO DE AUTENTICAÇÃO
     projectId: "orca-eleltrica",                      // SUBSTITUA PELO SEU ID DE PROJETO
     storageBucket: "orca-eleltrica.firebasestorage.app", // SUBSTITUA PELO SEU STORAGE BUCKET
@@ -81,7 +80,7 @@ window.initProfilePage = async function(userObj, firestoreDb, firebaseAuth, fire
     // Carregar dados do perfil se o usuário estiver logado
     if (currentUser) {
         if (loggedInEmailProfileSpan) {
-            loggedInEmailProfileSpan.textContent = currentUser.email; // Exibe o email na seção de segurança
+            loggedInEmailProfileSpan.textContent = currentUser.email;
         }
         await loadProfileData(currentUser.uid);
     } else {
@@ -210,7 +209,7 @@ function handleLogoInputChange(event) {
             if (logoPreview) logoPreview.src = e.target.result;
             if (logoPreview) logoPreview.style.display = 'block';
             const noLogoText = document.getElementById('noLogoText');
-            if (noLogoText) noLogoText.style.display = 'none'; // Esconde texto "Nenhuma logo"
+            if (noLogoText) noLogoText.style.display = 'none';
         };
         reader.readAsDataURL(file);
     } else {
@@ -608,7 +607,7 @@ window.initCreateQuotationPage = async function(user, firestoreDb, firebaseAuth,
     if (clearQuotationBtn) clearQuotationBtn.addEventListener('click', handleClearQuotation);
     if (backToDashboardBtn) backToDashboardBtn.addEventListener('click', handleBackToDashboard);
 
-    // Carregar itens disponiveis (ambos predefinidos e do usuario)
+    // Carregar itens disponíveis (ambos predefinidos e do usuário)
     if (currentUser) {
         await loadPredefinedItemsForQuotation();
         await loadUserItemsForQuotation(currentUser.uid);
@@ -701,12 +700,12 @@ function handleDocumentClickToHidePredefinedQuoteResults(e) {
 }
 
 async function loadUserItemsForQuotation(uid) {
-    allAvailableUserItems = [];
+    allAvailableItems = [];
     try {
         const servicesSnapshot = await db.collection('users').doc(uid).collection('services').get();
-        servicesSnapshot.forEach(doc => { allAvailableUserItems.push({ id: doc.id, type: 'service', ...doc.data() }); });
+        servicesSnapshot.forEach(doc => { allAvailableItems.push({ id: doc.id, type: 'service', ...doc.data() }); });
         const materialsSnapshot = await db.collection('users').doc(uid).collection('materials').get();
-        materialsSnapshot.forEach(doc => { allAvailableUserItems.push({ id: doc.id, type: 'material', ...doc.data() }); });
+        materialsSnapshot.forEach(doc => { allAvailableItems.push({ id: doc.id, type: 'material', ...doc.data() }); });
     } catch (error) {
         console.error('Erro ao carregar serviços/materiais do usuário para orçamento:', error);
         if (quotationMessage) showMessage(quotationMessage, 'Erro ao carregar itens para busca.', 'error');
@@ -717,7 +716,7 @@ function handleUserItemSearchInput(e) {
     const searchTerm = e.target.value.toLowerCase();
     if (userSearchResultsDiv) userSearchResultsDiv.innerHTML = '';
     if (searchTerm.length < 2) { if (userSearchResultsDiv) userSearchResultsDiv.classList.remove('active'); return; }
-    const filteredItems = allAvailableUserItems.filter(item =>
+    const filteredItems = allAvailableItems.filter(item =>
         item.name.toLowerCase().includes(searchTerm) || (item.description && item.description.toLowerCase().includes(searchTerm))
     );
     if (filteredItems.length === 0) {

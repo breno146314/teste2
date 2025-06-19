@@ -20,26 +20,22 @@ const db = firebase.firestore();
 const storage = firebase.storage();
 
 // --- Elementos HTML do Dashboard ---
-// Referências para elementos HTML principais do dashboard.html
 const loggedInUserEmail = document.getElementById('loggedInUserEmail'); // Email na sidebar (desktop)
 const welcomeMessageNav = document.getElementById('welcomeMessageNav'); // Mensagem de boas-vindas na navbar superior
 
 const logoutButtonNav = document.getElementById('logoutButtonNav'); // Botão Sair da Navbar (desktop)
-const logoutButtonOffcanvas = document.getElementById('logoutButtonOffcanvas'); // Botão Sair do Offcanvas (mobile)
+const logoutButton = document.getElementById('logoutButton'); // Botão Sair da Sidebar/Offcanvas (mobile)
 
 const sidebarNavLinks = document.querySelectorAll('#sidebar-wrapper .list-group-item'); // Links de navegação da sidebar
 const contentSections = document.querySelectorAll('#page-content-wrapper .content-section'); // Seções de conteúdo principal
-const sidebarToggleBtn = document.getElementById('sidebarToggle'); // Botão de toggle da sidebar (mobile e desktop)
-const wrapper = document.getElementById('wrapper'); // Elemento #wrapper para o toggle da sidebar
+const sidebarToggleBtn = document.getElementById('sidebarToggle'); // Botão de toggle da sidebar (hambúrguer)
+const wrapper = document.getElementById('wrapper'); // Elemento #wrapper para o toggle da sidebar (desktop)
+const sidebarWrapperElement = document.getElementById('sidebar-wrapper'); // Referência ao elemento sidebar para o Offcanvas
 
 const dashboardQuickActionCards = document.querySelectorAll('#dashboardOverview [data-section]'); // Cards de atalho na Visão Geral
 
 
 // --- Variáveis para Referências a Elementos das Páginas Carregadas Dinamicamente ---
-// Estas variáveis são declaradas globalmente, mas suas atribuições a `document.getElementById`
-// ocorrerão DENTRO das funções de inicialização específicas de cada página (ex: initProfilePage).
-// Isso é essencial porque o HTML dessas páginas é injetado dinamicamente, e os elementos
-// só existem APÓS a injeção.
 let profileForm, usernameInput, emailInput, companyNameInput, cnpjInput, companyAddressInput,
     companyPhoneInput, companyLogoInput, logoPreview, logoStatus, defaultTermsInput,
     profileMessage, backToDashboardBtn, loggedInEmailProfileSpan, changePasswordLink;
@@ -61,8 +57,8 @@ let allPredefinedQuoteItems = []; // Para a página de orçamento
 
 
 // --- Variáveis de Estado Global do Dashboard ---
-let currentUser = null; // Usuário logado no momento
-let authInitialized = false; // Flag para controlar o loop de redirecionamento
+let currentUser = null;
+let authInitialized = false;
 
 
 // --- Funções Auxiliares Comuns (Globais para serem usadas por todos os scripts injetados) ---
@@ -83,12 +79,10 @@ function formatCurrency(value) {
 function showMessage(element, msg, type) {
     if (element) {
         element.textContent = msg;
-        // Usa classes de alerta do Bootstrap para feedback visual (success, danger, info, warning)
         element.className = `alert alert-${type} mt-3 text-center`;
         setTimeout(() => {
             element.textContent = '';
-            // Retorna para a classe base ou limpa completamente a classe de alerta
-            element.className = 'message mt-3 text-center'; 
+            element.className = 'message mt-3 text-center';
         }, 3000);
     }
 }
@@ -247,7 +241,7 @@ auth.onAuthStateChanged(async (user) => {
         // SOMENTE redireciona se o Firebase Auth já tiver tido tempo de inicializar e determinar
         // que o usuário NÃO está logado de forma definitiva. Isso evita o loop.
         if (authInitialized) {
-            redirectToLogin();
+            window.location.href = '/index.html'; // Redireciona para a landing page (login/cadastro)
         }
     }
 });
@@ -268,8 +262,9 @@ if (logoutButtonNav) {
 }
 
 // Botão de sair no offcanvas (mobile)
-if (logoutButtonOffcanvas) {
-    logoutButtonOffcanvas.addEventListener('click', async () => {
+// No novo HTML, o botão de logout no offcanvas TEM o ID 'logoutButton'.
+if (logoutButton) { // Usamos 'logoutButton' para o offcanvas
+    logoutButton.addEventListener('click', async () => {
         try {
             await auth.signOut();
             redirectToLogin();
@@ -289,10 +284,10 @@ sidebarNavLinks.forEach(link => {
         showSection(sectionId); // Chama a função para mostrar a seção
         
         // Fecha o offcanvas automaticamente após clicar no link (apenas em mobile)
-        const offcanvasElement = document.getElementById('sidebarOffcanvas');
+        const offcanvasElement = document.getElementById('sidebar-wrapper'); // Agora #sidebar-wrapper é o elemento do offcanvas em mobile
         const offcanvas = bootstrap.Offcanvas.getInstance(offcanvasElement);
-        if (offcanvas) {
-            offcanvas.hide(); // Oculta o offcanvas se ele estiver visível
+        if (offcanvas) { // Verifica se uma instância do offcanvas existe (mobile)
+            offcanvas.hide(); // Oculta o offcanvas
         }
     });
 });
@@ -301,13 +296,19 @@ sidebarNavLinks.forEach(link => {
 // Este é o botão de hambúrguer na navbar que aparece em telas menores
 if (sidebarToggleBtn) {
     sidebarToggleBtn.addEventListener('click', () => {
-        const offcanvasElement = document.getElementById('sidebarOffcanvas');
-        // Cria uma nova instância de Offcanvas se não existir e o mostra/esconde
-        let offcanvas = bootstrap.Offcanvas.getInstance(offcanvasElement);
-        if (!offcanvas) {
-            offcanvas = new bootstrap.Offcanvas(offcanvasElement);
+        const sidebarWrapperElement = document.getElementById('sidebar-wrapper');
+        
+        if (window.innerWidth >= 992) { // Desktop (largura de tela >= 992px)
+            // Para desktop, toggle a classe 'toggled' no #wrapper para empurrar/esconder a sidebar
+            wrapper.classList.toggle('toggled');
+        } else { // Mobile (largura de tela < 992px)
+            // Para mobile, atua como um offcanvas do Bootstrap
+            let offcanvas = bootstrap.Offcanvas.getInstance(sidebarWrapperElement);
+            if (!offcanvas) { // Se não existe instância, cria uma nova
+                offcanvas = new bootstrap.Offcanvas(sidebarWrapperElement);
+            }
+            offcanvas.toggle(); // Alterna a visibilidade do offcanvas
         }
-        offcanvas.toggle();
     });
 }
 
@@ -322,22 +323,23 @@ dashboardQuickActionCards.forEach(card => {
 
 
 // --- Funções de Inicialização para Páginas Carregadas Dinamicamente ---
-// Estas funções são definidas no escopo global (window.funcao) para que o dashboard.js
-// possa chamá-las após carregar o HTML e o script correspondente de forma dinâmica.
-// Cada uma é responsável por obter as referências dos elementos HTML da sua página
-// e anexar os event listeners APÓS a injeção do HTML no DOM.
+// Estas funções são definidas como globais (window.funcao) para que o dashboard.js
+// possa chamá-las após carregar o HTML e o script correspondente.
+
+// Funções Auxiliares Gerais (usadas por várias páginas)
+// Elas estão no escopo global de dashboard.js e são acessíveis pelos scripts injetados.
+// Ex: window.formatCurrency = function(value) { return ... };
+// Ex: window.showMessage = function(element, msg, type) { ... };
 
 
 // --- Funções de Inicialização para public/profile.js ---
+// Esta função é chamada pelo dashboard.js após carregar profile.html e profile.js
 window.initProfilePage = async function(userObj, firestoreDb, firebaseAuth, firebaseStorage) {
-    // Reatribuir as instâncias do Firebase passadas pelo dashboard.js
     currentUser = userObj;
     db = firestoreDb;
     auth = firebaseAuth;
     storage = firebaseStorage;
 
-    // --- Obter Referências dos Elementos HTML (após o HTML ser injetado) ---
-    // É crucial re-obter referências a cada vez que a página é carregada dinamicamente
     profileForm = document.getElementById('profileForm');
     usernameInput = document.getElementById('username');
     emailInput = document.getElementById('email');
@@ -354,22 +356,19 @@ window.initProfilePage = async function(userObj, firestoreDb, firebaseAuth, fire
     loggedInEmailProfileSpan = document.getElementById('loggedInEmailProfile');
     changePasswordLink = document.getElementById('changePasswordLink');
 
-    // Carregar dados do perfil se o usuário estiver logado
     if (currentUser) {
         if (loggedInEmailProfileSpan) {
             loggedInEmailProfileSpan.textContent = currentUser.email;
         }
         await loadProfileData(currentUser.uid);
     } else {
-        // Redirecionar se não houver usuário logado (redundante, pois loading.js já faria)
         console.log('Nenhum usuário logado na página de perfil. Redirecionando...');
-        window.location.href = '/index.html'; // Redirecionamento de fallback
+        window.location.href = '/index.html';
     }
 
-    // --- Re-adicionar Event Listeners (CRÍTICO: Elementos são recriados a cada carga dinâmica) ---
     if (profileForm) profileForm.addEventListener('submit', handleProfileFormSubmit);
     if (companyLogoInput) companyLogoInput.addEventListener('change', handleLogoInputChange);
-    if (backToDashboardBtn) backToDashboardBtn.addEventListener('click', () => showSection('dashboardOverview'));
+    if (backToDashboardBtn) backToDashboardBtn.addEventListener('click', () => window.showSection('dashboardOverview'));
     if (changePasswordLink) changePasswordLink.addEventListener('click', handleChangePassword);
 };
 
@@ -417,7 +416,7 @@ async function handleProfileFormSubmit(event) {
         if (profileMessage) showMessage(profileMessage, 'Nenhum usuário logado para salvar o perfil.', 'error');
         return;
     }
-    if (profileMessage) showMessage(profileMessage, '', ''); // Reseta mensagens
+    if (profileMessage) showMessage(profileMessage, '', '');
     const dataToUpdate = {
         username: usernameInput.value, companyName: companyNameInput.value, cnpj: cnpjInput.value,
         companyAddress: companyAddressInput.value, companyPhone: companyPhoneInput.value,
@@ -868,7 +867,7 @@ window.initCreateQuotationPage = async function(user, firestoreDb, firebaseAuth,
     if (clearQuotationBtn) clearQuotationBtn.addEventListener('click', handleClearQuotation);
     if (backToDashboardBtn) backToDashboardBtn.addEventListener('click', handleBackToDashboard);
 
-    // Carregar itens disponiveis (ambos predefinidos e do usuario)
+    // Carregar itens disponíveis (ambos predefinidos e do usuário)
     if (currentUser) {
         await loadPredefinedItemsForQuotation();
         await loadUserItemsForQuotation(currentUser.uid);
@@ -877,18 +876,18 @@ window.initCreateQuotationPage = async function(user, firestoreDb, firebaseAuth,
     renderQuotationItems();
 };
 
-// Funcoes auxiliares para create-quotation.js
+// Funções auxiliares para create-quotation.js
 async function loadPredefinedItemsForQuotation() {
     allPredefinedQuoteItems = [];
     try {
         const predefinedSnapshot = await db.collection('predefinedServices').get();
         predefinedSnapshot.forEach(doc => { allPredefinedQuoteItems.push({ id: doc.id, ...doc.data() }); });
-        console.log('Itens predefinidos para orcamento carregados:', allPredefinedQuoteItems.length);
+        console.log('Itens predefinidos para orçamento carregados:', allPredefinedQuoteItems.length);
         renderPredefinedQuoteItems(allPredefinedQuoteItems);
     } catch (error) {
-        console.error('Erro ao carregar itens predefinidos para orcamento:', error);
+        console.error('Erro ao carregar itens predefinidos para orçamento:', error);
         if (predefinedQuoteResultsDiv) {
-            predefinedQuoteResultsDiv.innerHTML = '<div class="alert alert-danger text-center">Erro ao carregar sugestoes.</div>';
+            predefinedQuoteResultsDiv.innerHTML = '<div class="alert alert-danger text-center">Erro ao carregar sugestões.</div>';
             predefinedQuoteResultsDiv.style.display = 'block';
         }
     }
@@ -950,7 +949,7 @@ function handlePredefinedQuoteResultsClick(e) {
         addItemToQuotation(name, description, unit, price, 1);
         if (predefinedQuoteItemSearchInput) predefinedQuoteItemSearchInput.value = '';
         if (predefinedQuoteResultsDiv) predefinedQuoteResultsDiv.classList.remove('active');
-        if (quotationMessage) showMessage(quotationMessage, `${name} adicionado do item padrao!`, 'success');
+        if (quotationMessage) showMessage(quotationMessage, `${name} adicionado do item padrão!`, 'success');
     }
 }
 
@@ -961,14 +960,14 @@ function handleDocumentClickToHidePredefinedQuoteResults(e) {
 }
 
 async function loadUserItemsForQuotation(uid) {
-    allAvailableUserItems = [];
+    allAvailableItems = [];
     try {
         const servicesSnapshot = await db.collection('users').doc(uid).collection('services').get();
-        servicesSnapshot.forEach(doc => { allAvailableUserItems.push({ id: doc.id, type: 'service', ...doc.data() }); });
+        servicesSnapshot.forEach(doc => { allAvailableItems.push({ id: doc.id, type: 'service', ...doc.data() }); });
         const materialsSnapshot = await db.collection('users').doc(uid).collection('materials').get();
-        materialsSnapshot.forEach(doc => { allAvailableUserItems.push({ id: doc.id, type: 'material', ...doc.data() }); });
+        materialsSnapshot.forEach(doc => { allAvailableItems.push({ id: doc.id, type: 'material', ...doc.data() }); });
     } catch (error) {
-        console.error('Erro ao carregar servicos/materiais do usuario para orcamento:', error);
+        console.error('Erro ao carregar serviços/materiais do usuário para orçamento:', error);
         if (quotationMessage) showMessage(quotationMessage, 'Erro ao carregar itens para busca.', 'error');
     }
 }
@@ -977,7 +976,7 @@ function handleUserItemSearchInput(e) {
     const searchTerm = e.target.value.toLowerCase();
     if (userSearchResultsDiv) userSearchResultsDiv.innerHTML = '';
     if (searchTerm.length < 2) { if (userSearchResultsDiv) userSearchResultsDiv.classList.remove('active'); return; }
-    const filteredItems = allAvailableUserItems.filter(item =>
+    const filteredItems = allAvailableItems.filter(item =>
         item.name.toLowerCase().includes(searchTerm) || (item.description && item.description.toLowerCase().includes(searchTerm))
     );
     if (filteredItems.length === 0) {
@@ -1034,7 +1033,7 @@ function handleAddManualItem() {
     const quantity = parseInt(manualItemQuantityInput.value);
 
     if (!name || isNaN(price) || price < 0 || isNaN(quantity) || quantity <= 0) {
-        if (quotationMessage) showMessage(quotationMessage, 'Preencha todos os campos obrigatorios do item manual (Nome, Preco, Qtd.).', 'error');
+        if (quotationMessage) showMessage(quotationMessage, 'Preencha todos os campos obrigatórios do item manual (Nome, Preço, Qtd.).', 'error');
         return;
     }
     addItemToQuotation(name, description, unit, price, quantity);
@@ -1090,7 +1089,7 @@ function handleQuotationItemsClick(e) {
     if (e.target.matches('.remove-item-btn') || e.target.closest('.remove-item-btn')) {
         const btn = e.target.closest('.remove-item-btn');
         const itemId = parseInt(btn.dataset.id);
-        if (confirm('Tem certeza que deseja remover este item do orcamento?')) {
+        if (confirm('Tem certeza que deseja remover este item do orçamento?')) {
             currentQuotationItems = currentQuotationItems.filter(item => item.id !== itemId);
             renderQuotationItems();
             calculateTotal();
@@ -1120,14 +1119,14 @@ function calculateTotal() {
 
 async function handleGeneratePdf() {
     if (currentQuotationItems.length === 0) {
-        if (quotationMessage) showMessage(quotationMessage, 'Adicione pelo menos um item ao orcamento antes de gerar o PDF.', 'error');
+        if (quotationMessage) showMessage(quotationMessage, 'Adicione pelo menos um item ao orçamento antes de gerar o PDF.', 'error');
         return;
     }
     if (!clientNameInput.value) {
         if (quotationMessage) showMessage(quotationMessage, 'Preencha o nome do cliente antes de gerar o PDF.', 'error');
         return;
     }
-    if (quotationMessage) showMessage(quotationMessage, 'Gerando orcamento em PDF... Aguarde!', 'info');
+    if (quotationMessage) showMessage(quotationMessage, 'Gerando orçamento em PDF... Aguarde!', 'info');
 
     const quotationData = {
         client: {
@@ -1147,7 +1146,7 @@ async function handleGeneratePdf() {
         if (userDoc.exists) {
             quotationData.companyInfo = userDoc.data();
         } else {
-            if (quotationMessage) showMessage(quotationMessage, 'Erro: Dados da empresa nao encontrados. Por favor, atualize seu perfil.', 'error');
+            if (quotationMessage) showMessage(quotationMessage, 'Erro: Dados da empresa não encontrados. Por favor, atualize seu perfil.', 'error');
             return;
         }
         
@@ -1182,11 +1181,11 @@ async function handleGeneratePdf() {
 }
 
 function handleSaveDraft() {
-    if (quotationMessage) showMessage(quotationMessage, 'Funcionalidade de Salvar Rascunho em construcao!', 'info');
+    if (quotationMessage) showMessage(quotationMessage, 'Funcionalidade de Salvar Rascunho em construção!', 'info');
 }
 
 function handleClearQuotation() {
-    if (confirm('Tem certeza que deseja limpar todo o orcamento atual?')) {
+    if (confirm('Tem certeza que deseja limpar todo o orçamento atual?')) {
         currentQuotationItems = [];
         renderQuotationItems();
         calculateTotal();
@@ -1198,7 +1197,7 @@ function handleClearQuotation() {
         if (validityDaysInput) validityDaysInput.value = '30';
         if (paymentTermsInput) paymentTermsInput.value = '';
         if (observationsInput) observationsInput.value = '';
-        if (quotationMessage) showMessage(quotationMessage, 'Orcamento limpo!', 'info');
+        if (quotationMessage) showMessage(quotationMessage, 'Orçamento limpo!', 'info');
     }
 }
 
@@ -1207,5 +1206,5 @@ window.initMyQuotationsPage = async function(user, firestoreDb, firebaseAuth) {
     currentUser = user;
     db = firestoreDb;
     auth = firebaseAuth;
-    console.log('Pagina de Meus Orcamentos inicializada.');
+    console.log('Página de Meus Orçamentos inicializada.');
 };
