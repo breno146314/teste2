@@ -763,7 +763,7 @@ async function handleMaterialListClick(e) {
         if (confirm('Tem certeza que deseja excluir este material?')) {
             try {
                 await db.collection('users').doc(currentUser.uid).collection('materials').doc(id).delete();
-                if (materialMessage) showMessage(materialMessage, 'Material excluido com sucesso!', 'success');
+                if (materialMessage) showMessage(materialMessage, 'Material excluído com sucesso!', 'success');
                 loadMaterials(currentUser.uid);
             } catch (error) {
                 console.error('Erro ao excluir material:', error);
