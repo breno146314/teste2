@@ -2,7 +2,7 @@
 
 // **IMPORTANTE:** Cole a configuração REAL do seu projeto Firebase aqui!
 const firebaseConfig = {
-    apiKey: "SUA_API_KEY",
+    apiKey: "AIzaSyBvFAdgyg9ns3qo4ENSR0TATy1QdMGfgCI",
     authDomain: "orca-eleltrica.firebaseapp.com",
     projectId: "orca-eleltrica",
     storageBucket: "orca-eleltrica.firebasestorage.app",
@@ -20,81 +20,79 @@ const db = firebase.firestore();
 const storage = firebase.storage();
 
 // --- Elementos HTML do Dashboard ---
+// Referências para elementos HTML principais do dashboard.html
 const loggedInUserEmail = document.getElementById('loggedInUserEmail'); // Email na sidebar (desktop)
 const welcomeMessageNav = document.getElementById('welcomeMessageNav'); // Mensagem de boas-vindas na navbar superior
 
-// Botoes de Sair: AGORA COM OS IDs CORRETOS
-const logoutButtonNav = document.getElementById('logoutButtonNav'); // Botao Sair da Navbar (desktop)
-const logoutButtonOffcanvas = document.getElementById('logoutButtonOffcanvas'); // Botao Sair do Offcanvas (mobile)
+const logoutButtonNav = document.getElementById('logoutButtonNav'); // Botão Sair da Navbar (desktop)
+const logoutButtonOffcanvas = document.getElementById('logoutButtonOffcanvas'); // Botão Sair do Offcanvas (mobile)
 
-const sidebarNavLinks = document.querySelectorAll('#sidebar-wrapper .list-group-item'); // Links de navegacao da sidebar
-const contentSections = document.querySelectorAll('#page-content-wrapper .content-section'); // Seções de conteudo principal
-const sidebarToggleBtn = document.getElementById('sidebarToggle'); // Botao de toggle da sidebar (mobile e desktop)
+const sidebarNavLinks = document.querySelectorAll('#sidebar-wrapper .list-group-item'); // Links de navegação da sidebar
+const contentSections = document.querySelectorAll('#page-content-wrapper .content-section'); // Seções de conteúdo principal
+const sidebarToggleBtn = document.getElementById('sidebarToggle'); // Botão de toggle da sidebar (mobile e desktop)
 const wrapper = document.getElementById('wrapper'); // Elemento #wrapper para o toggle da sidebar
 
-// Cards de atalho na Visao Geral (data-section para indicar qual secao carregar)
-const dashboardQuickActionCards = document.querySelectorAll('#dashboardOverview [data-section]');
+const dashboardQuickActionCards = document.querySelectorAll('#dashboardOverview [data-section]'); // Cards de atalho na Visão Geral
+
 
 // --- Variáveis para Referências a Elementos das Páginas Carregadas Dinamicamente ---
-// Estas variáveis serao reatribuidas dentro das funcoes de inicializacao específicas de cada página.
-// É essencial que elas estejam no escopo global para serem acessíveis a todos os handlers.
-let profileForm = null; let usernameInput = null; let emailInput = null; let companyNameInput = null;
-let cnpjInput = null; let companyAddressInput = null; let companyPhoneInput = null;
-let companyLogoInput = null; let logoPreview = null; let logoStatus = null;
-let defaultTermsInput = null; let profileMessage = null; let backToDashboardBtn = null;
-let loggedInEmailProfileSpan = null; let changePasswordLink = null;
+// Estas variáveis são declaradas globalmente, mas suas atribuições a `document.getElementById`
+// ocorrerão DENTRO das funções de inicialização específicas de cada página (ex: initProfilePage).
+// Isso é essencial porque o HTML dessas páginas é injetado dinamicamente, e os elementos
+// só existem APÓS a injeção.
+let profileForm, usernameInput, emailInput, companyNameInput, cnpjInput, companyAddressInput,
+    companyPhoneInput, companyLogoInput, logoPreview, logoStatus, defaultTermsInput,
+    profileMessage, backToDashboardBtn, loggedInEmailProfileSpan, changePasswordLink;
 
-let tabsContainer = null; let tabButtons = null; let tabContents = null;
-let serviceForm = null; let serviceIdInput = null; let serviceNameInput = null;
-let serviceDescriptionInput = null; let serviceUnitInput = null; let servicePriceInput = null;
-let servicesList = null; let serviceMessage = null; let cancelServiceEditBtn = null;
-let noServicesMessage = null;
-let materialForm = null; let materialIdInput = null; let materialNameInput = null;
-let materialDescriptionInput = null; let materialUnitInput = null; let materialPriceInput = null;
-let materialsList = null; let materialMessage = null; let cancelMaterialEditBtn = null;
-let noMaterialsMessage = null;
-let predefinedItemSearchInput = null; let predefinedResultsDiv = null; let noPredefinedItemsMessage = null;
-let allPredefinedItems = [];
+let tabsContainer, tabButtons, tabContents,
+    serviceForm, serviceIdInput, serviceNameInput, serviceDescriptionInput, serviceUnitInput, servicePriceInput, servicesList, serviceMessage, cancelServiceEditBtn, noServicesMessage,
+    materialForm, materialIdInput, materialNameInput, materialDescriptionInput, materialUnitInput, materialPriceInput, materialsList, materialMessage, cancelMaterialEditBtn, noMaterialsMessage,
+    predefinedItemSearchInput, predefinedResultsDiv, noPredefinedItemsMessage, allPredefinedItems = [];
 
-let clientNameInput = null; let clientEmailInput = null; let clientPhoneInput = null;
-let clientAddressInput = null; let itemSearchInput = null; let searchResultsDiv = null;
-let manualItemNameInput = null; let manualItemDescriptionInput = null; let manualItemUnitInput = null;
-let manualItemPriceInput = null; let manualItemQuantityInput = null;
-let addManualItemBtn = null; let quotationItemsList = null; let subtotalDisplay = null;
-let discountInput = null; let applyDiscountBtn = null; let totalDisplay = null;
-let validityDaysInput = null; let paymentTermsInput = null; let observationsInput = null;
-let generatePdfBtn = null; let saveDraftBtn = null; let clearQuotationBtn = null;
-let quotationMessage = null;
-let allAvailableItems = [];
-let currentQuotationItems = [];
+let clientNameInput, clientEmailInput, clientPhoneInput, clientAddressInput,
+    userItemSearchInput, userSearchResultsDiv, allAvailableUserItems = [],
+    manualItemNameInput, manualItemDescriptionInput, manualItemUnitInput, manualItemPriceInput, manualItemQuantityInput, addManualItemBtn,
+    quotationItemsList, subtotalDisplay, discountInput, applyDiscountBtn, totalDisplay,
+    validityDaysInput, paymentTermsInput, observationsInput,
+    generatePdfBtn, saveDraftBtn, clearQuotationBtn, quotationMessage,
+    currentQuotationItems = [];
+
+let allPredefinedQuoteItems = []; // Para a página de orçamento
 
 
 // --- Variáveis de Estado Global do Dashboard ---
-let currentUser = null;
-let authInitialized = false;
+let currentUser = null; // Usuário logado no momento
+let authInitialized = false; // Flag para controlar o loop de redirecionamento
 
 
-// --- Funções Auxiliares Comuns ---
+// --- Funções Auxiliares Comuns (Globais para serem usadas por todos os scripts injetados) ---
+
+/** Redireciona o usuário para a página de login. */
 function redirectToLogin() {
     setTimeout(() => {
         window.location.href = '/index.html';
     }, 100);
 }
 
+/** Formata um valor numérico para a moeda brasileira. */
 function formatCurrency(value) {
     return `R$ ${parseFloat(value).toFixed(2).replace('.', ',')}`;
 }
 
+/** Exibe uma mensagem de feedback na interface. */
 function showMessage(element, msg, type) {
     if (element) {
         element.textContent = msg;
+        // Usa classes de alerta do Bootstrap para feedback visual (success, danger, info, warning)
         element.className = `alert alert-${type} mt-3 text-center`;
         setTimeout(() => {
             element.textContent = '';
-            element.className = 'message mt-3 text-center'; // Retorna para a classe base
+            // Retorna para a classe base ou limpa completamente a classe de alerta
+            element.className = 'message mt-3 text-center'; 
         }, 3000);
     }
 }
+
 
 /**
  * Exibe uma seção específica do dashboard e carrega seu conteúdo dinamicamente.
@@ -104,7 +102,7 @@ async function showSection(sectionId) {
     // Esconde todas as seções de conteúdo
     contentSections.forEach(section => {
         section.classList.remove('active');
-        section.style.display = 'none'; // Garante que o Bootstrap nao interfira com display: block
+        section.style.display = 'none'; // Garante que o Bootstrap não interfira com display: block
     });
 
     // Remove a classe 'active' de todos os links da sidebar
@@ -116,7 +114,7 @@ async function showSection(sectionId) {
     const targetSection = document.getElementById(sectionId);
     if (targetSection) {
         targetSection.classList.add('active');
-        targetSection.style.display = 'block'; // Garante que a secao apareca
+        targetSection.style.display = 'block'; // Garante que a seção apareça
         const activeLink = document.querySelector(`#sidebar-wrapper .list-group-item[data-section="${sectionId}"]`);
         if (activeLink) {
             activeLink.classList.add('active');
@@ -124,7 +122,7 @@ async function showSection(sectionId) {
     }
 
     // --- Lógica para Carregar Conteúdo Dinamicamente ---
-    if (sectionId !== 'dashboardOverview') { // Nao limpa a secao de Visao Geral
+    if (sectionId !== 'dashboardOverview') { // Não limpa a seção de Visão Geral
         const sectionMap = {
             'manageServicesSection': { url: '/manage-services.html', script: 'manage-services.js', initFunc: 'initManageServicesPage' },
             'accountSettingsSection': { url: '/profile.html', script: 'profile.js', initFunc: 'initProfilePage' },
@@ -140,20 +138,22 @@ async function showSection(sectionId) {
                     <div class="spinner-border text-primary" role="status">
                         <span class="visually-hidden">Carregando...</span>
                     </div>
-                    <p class="mt-3">Carregando conteudo...</p>
+                    <p class="mt-3">Carregando conteúdo...</p>
                 </div>
             `;
+            // Espera o carregamento do conteúdo e inicializa a página
             await loadContentIntoSection(currentSectionInfo.url, targetSection, currentSectionInfo.script, currentSectionInfo.initFunc);
         } else {
-            console.warn(`Seção '${sectionId}' não possui configuração de carregamento dinamico.`);
-            targetSection.innerHTML = `<div class="alert alert-warning">Conteudo nao encontrado para esta secao.</div>`;
+            console.warn(`Seção '${sectionId}' não possui configuração de carregamento dinâmico.`);
+            targetSection.innerHTML = `<div class="alert alert-warning">Conteúdo não encontrado para esta seção.</div>`;
         }
     }
 }
 
 /**
  * Carrega o conteúdo HTML de uma URL e injeta em uma seção,
- * então executa o script JS associado e uma função de inicialização.
+ * então remove scripts antigos e anexa o novo script JS associado,
+ * chamando sua função de inicialização.
  * @param {string} url O caminho para o arquivo HTML a ser carregado.
  * @param {HTMLElement} targetSection O elemento HTML onde o conteúdo será injetado.
  * @param {string} scriptToLoad O caminho para o arquivo JS a ser executado.
@@ -167,75 +167,85 @@ async function loadContentIntoSection(url, targetSection, scriptToLoad, initFunc
         }
         const html = await response.text();
 
+        // Extrai o conteúdo relevante do HTML do fragmento (apenas o que está dentro do .container ou body)
         const parser = new DOMParser();
         const doc = parser.parseFromString(html, 'text/html');
         const contentToInjectElement = doc.body.querySelector('.container') || doc.body;
         targetSection.innerHTML = contentToInjectElement.innerHTML;
 
-        // Remove scripts previamente carregados para evitar duplicacao ou conflito
+        // Remove scripts previamente carregados para evitar duplicação ou conflito
         const oldScript = document.getElementById(`dynamic-script-${targetSection.id}`);
         if (oldScript) {
             oldScript.remove();
         }
 
-        // Cria e anexa o novo script
+        // Cria e anexa o novo script ao body
         const scriptElement = document.createElement('script');
         scriptElement.src = scriptToLoad;
-        scriptElement.id = `dynamic-script-${targetSection.id}`;
+        scriptElement.id = `dynamic-script-${targetSection.id}`; // Adiciona um ID único para fácil remoção futura
         scriptElement.onload = () => {
             console.log(`${scriptToLoad} carregado e executado.`);
             // Chama a função de inicialização específica do script carregado, se existir
             if (window[initFunctionName] && typeof window[initFunctionName] === 'function') {
-                window[initFunctionName](currentUser, db, auth, storage); // Passa dependencias Firebase
+                // Passa as dependências do Firebase como argumentos para as funções de inicialização das páginas
+                window[initFunctionName](currentUser, db, auth, storage);
             } else {
-                console.warn(`Funcao de inicializacao '${initFunctionName}' nao encontrada em ${scriptToLoad}.`);
+                console.warn(`Função de inicialização '${initFunctionName}' não encontrada em ${scriptToLoad}.`);
             }
         };
         scriptElement.onerror = (e) => {
             console.error(`Erro ao carregar script ${scriptToLoad}:`, e);
-            targetSection.innerHTML = `<div class="alert alert-danger">Erro ao carregar o conteudo. Por favor, tente novamente.</div>`;
+            targetSection.innerHTML = `<div class="alert alert-danger">Erro ao carregar o conteúdo. Por favor, tente novamente.</div>`;
         };
-        document.body.appendChild(scriptElement);
+        document.body.appendChild(scriptElement); // Anexa o script ao body
 
     } catch (error) {
-        console.error(`Erro ao carregar conteudo de ${url}:`, error);
-        targetSection.innerHTML = `<div class="alert alert-danger">Erro ao carregar o conteudo: ${error.message}. Por favor, tente novamente.</div>`;
+        console.error(`Erro ao carregar conteúdo de ${url}:`, error);
+        targetSection.innerHTML = `<div class="alert alert-danger">Erro ao carregar o conteúdo: ${error.message}. Por favor, tente novamente.</div>`;
     }
 }
 
 
-// --- Autenticacao e Carregamento Inicial do Dashboard ---
+// --- Autenticação e Carregamento Inicial do Dashboard ---
+// Este listener é o ponto de controle principal para o estado de autenticação
 auth.onAuthStateChanged(async (user) => {
+    // A flag `authInitialized` garante que só redirecionamos para o login
+    // depois que o Firebase Auth tiver uma resposta definitiva sobre o usuário.
     if (!authInitialized) {
         authInitialized = true;
     }
 
     if (user) {
-        currentUser = user;
-        console.log('Usuario logado no dashboard:', user.email, user.uid);
-        if (loggedInUserEmail) loggedInUserEmail.textContent = user.email; // Exibe o email na sidebar
+        currentUser = user; // Atribui o usuário logado à variável global
+        console.log('Usuário logado no dashboard:', user.email, user.uid);
         
-        // Tentar buscar o nome de usuario do Firestore para mensagem de boas-vindas na navbar
+        // Exibe o email do usuário na sidebar (desktop)
+        if (loggedInUserEmail) loggedInUserEmail.textContent = user.email; 
+        
+        // Tenta buscar o nome de usuário do Firestore para mensagem de boas-vindas na navbar
         try {
             const userDoc = await db.collection('users').doc(user.uid).get();
             if (userDoc.exists) {
                 const userData = userDoc.data();
-                if (welcomeMessageNav) welcomeMessageNav.textContent = `Ola, ${userData.username || user.email}!`; // Mensagem na navbar
+                if (welcomeMessageNav) welcomeMessageNav.textContent = `Olá, ${userData.username || user.email}!`;
             } else {
-                if (welcomeMessageNav) welcomeMessageNav.textContent = `Ola, ${user.email}!`;
+                if (welcomeMessageNav) welcomeMessageNav.textContent = `Olá, ${user.email}!`;
             }
         } catch (error) {
-            console.error('Erro ao buscar dados do usuario no Firestore:', error);
-            if (welcomeMessageNav) welcomeMessageNav.textContent = `Ola, ${user.email}!`;
+            console.error('Erro ao buscar dados do usuário no Firestore:', error);
+            if (welcomeMessageNav) welcomeMessageNav.textContent = `Olá, ${user.email}!`;
         }
         
-        // Exibir a secao de Visao Geral por padrao ao logar
+        // Exibe a seção de Visão Geral por padrão ao logar, se nenhuma seção estiver ativa
         if (!document.querySelector('.content-section.active')) {
             showSection('dashboardOverview');
         }
 
     } else {
-        console.log('Nenhum usuario logado. Redirecionando para login.');
+        // Usuário NÃO está logado
+        console.log('Nenhum usuário logado. Verificando se precisa redirecionar...');
+        // SOMENTE redireciona se o Firebase Auth já tiver tido tempo de inicializar e determinar
+        // que o usuário NÃO está logado de forma definitiva. Isso evita o loop.
         if (authInitialized) {
             redirectToLogin();
         }
@@ -243,9 +253,9 @@ auth.onAuthStateChanged(async (user) => {
 });
 
 
-// --- Logica de Logout ---
-// Botao de sair na navbar
-if (logoutButtonNav) { // Verificacao para garantir que o elemento existe
+// --- Lógica de Logout ---
+// Botão de sair na navbar (desktop)
+if (logoutButtonNav) {
     logoutButtonNav.addEventListener('click', async () => {
         try {
             await auth.signOut();
@@ -257,8 +267,8 @@ if (logoutButtonNav) { // Verificacao para garantir que o elemento existe
     });
 }
 
-// Botao de sair no offcanvas (mobile)
-if (logoutButtonOffcanvas) { // Verificacao para garantir que o elemento existe
+// Botão de sair no offcanvas (mobile)
+if (logoutButtonOffcanvas) {
     logoutButtonOffcanvas.addEventListener('click', async () => {
         try {
             await auth.signOut();
@@ -274,25 +284,27 @@ if (logoutButtonOffcanvas) { // Verificacao para garantir que o elemento existe
 // --- Event Listeners para Links da Sidebar ---
 sidebarNavLinks.forEach(link => {
     link.addEventListener('click', (e) => {
-        e.preventDefault();
-        const sectionId = e.target.dataset.section;
-        showSection(sectionId);
-        // Fecha o offcanvas automaticamente apos clicar no link (apenas em mobile)
-        const offcanvasElement = document.getElementById('sidebarOffcanvas'); // ID do offcanvas no HTML
+        e.preventDefault(); // Impede o comportamento padrão do link
+        const sectionId = e.target.dataset.section; // Obtém o ID da seção a ser mostrada
+        showSection(sectionId); // Chama a função para mostrar a seção
+        
+        // Fecha o offcanvas automaticamente após clicar no link (apenas em mobile)
+        const offcanvasElement = document.getElementById('sidebarOffcanvas');
         const offcanvas = bootstrap.Offcanvas.getInstance(offcanvasElement);
         if (offcanvas) {
-            offcanvas.hide();
+            offcanvas.hide(); // Oculta o offcanvas se ele estiver visível
         }
     });
 });
 
 // --- Event Listener para o Toggle da Sidebar (para Mobile e Desktop) ---
+// Este é o botão de hambúrguer na navbar que aparece em telas menores
 if (sidebarToggleBtn) {
     sidebarToggleBtn.addEventListener('click', () => {
         const offcanvasElement = document.getElementById('sidebarOffcanvas');
-        // A instancia do offcanvas ja pode existir se foi aberta antes
+        // Cria uma nova instância de Offcanvas se não existir e o mostra/esconde
         let offcanvas = bootstrap.Offcanvas.getInstance(offcanvasElement);
-        if (!offcanvas) { // Se nao existe, cria uma nova
+        if (!offcanvas) {
             offcanvas = new bootstrap.Offcanvas(offcanvasElement);
         }
         offcanvas.toggle();
@@ -300,45 +312,32 @@ if (sidebarToggleBtn) {
 }
 
 
-// --- Event Listeners para Cards de Acao Rapida no Dashboard (Visao Geral) ---
+// --- Event Listeners para Cards de Ação Rápida no Dashboard (Visão Geral) ---
 dashboardQuickActionCards.forEach(card => {
     card.addEventListener('click', (e) => {
-        const sectionId = e.currentTarget.dataset.section;
-        showSection(sectionId);
+        const sectionId = e.currentTarget.dataset.section; // Obtém o ID da seção do atributo data-section do card
+        showSection(sectionId); // Chama a função para mostrar a seção
     });
 });
 
 
 // --- Funções de Inicialização para Páginas Carregadas Dinamicamente ---
-// Estas funcoes sao definidas como globais (window.funcao) para que o dashboard.js
-// possa chamá-las apos carregar o HTML e o script correspondente.
-
-// Funcoes Auxiliares Gerais (usadas por varias paginas)
-function formatCurrency(value) {
-    return `R$ ${parseFloat(value).toFixed(2).replace('.', ',')}`;
-}
-
-function showMessage(element, msg, type) {
-    if (element) {
-        element.textContent = msg;
-        element.className = `alert alert-${type} mt-3 text-center`;
-        setTimeout(() => {
-            element.textContent = '';
-            element.className = 'message mt-3 text-center';
-        }, 3000);
-    }
-}
+// Estas funções são definidas no escopo global (window.funcao) para que o dashboard.js
+// possa chamá-las após carregar o HTML e o script correspondente de forma dinâmica.
+// Cada uma é responsável por obter as referências dos elementos HTML da sua página
+// e anexar os event listeners APÓS a injeção do HTML no DOM.
 
 
 // --- Funções de Inicialização para public/profile.js ---
 window.initProfilePage = async function(userObj, firestoreDb, firebaseAuth, firebaseStorage) {
-    // Reatribuir as instancias do Firebase passadas pelo dashboard.js
+    // Reatribuir as instâncias do Firebase passadas pelo dashboard.js
     currentUser = userObj;
     db = firestoreDb;
     auth = firebaseAuth;
     storage = firebaseStorage;
 
-    // --- Obter Referencias dos Elementos HTML (apos o HTML ser injetado) ---
+    // --- Obter Referências dos Elementos HTML (após o HTML ser injetado) ---
+    // É crucial re-obter referências a cada vez que a página é carregada dinamicamente
     profileForm = document.getElementById('profileForm');
     usernameInput = document.getElementById('username');
     emailInput = document.getElementById('email');
@@ -352,28 +351,29 @@ window.initProfilePage = async function(userObj, firestoreDb, firebaseAuth, fire
     defaultTermsInput = document.getElementById('defaultTerms');
     profileMessage = document.getElementById('profileMessage');
     backToDashboardBtn = document.getElementById('backToDashboard');
-    loggedInEmailProfileSpan = document.getElementById('loggedInEmailProfile'); // ID atualizado no HTML do perfil
+    loggedInEmailProfileSpan = document.getElementById('loggedInEmailProfile');
     changePasswordLink = document.getElementById('changePasswordLink');
 
-    // Carregar dados do perfil se o usuario estiver logado
+    // Carregar dados do perfil se o usuário estiver logado
     if (currentUser) {
         if (loggedInEmailProfileSpan) {
             loggedInEmailProfileSpan.textContent = currentUser.email;
         }
         await loadProfileData(currentUser.uid);
     } else {
-        console.log('Nenhum usuario logado na pagina de perfil. Redirecionando...');
-        window.location.href = '/index.html';
+        // Redirecionar se não houver usuário logado (redundante, pois loading.js já faria)
+        console.log('Nenhum usuário logado na página de perfil. Redirecionando...');
+        window.location.href = '/index.html'; // Redirecionamento de fallback
     }
 
-    // --- Re-adicionar Event Listeners (CRITICO: Elementos sao recriados a cada carga dinamica) ---
+    // --- Re-adicionar Event Listeners (CRÍTICO: Elementos são recriados a cada carga dinâmica) ---
     if (profileForm) profileForm.addEventListener('submit', handleProfileFormSubmit);
     if (companyLogoInput) companyLogoInput.addEventListener('change', handleLogoInputChange);
-    if (backToDashboardBtn) backToDashboardBtn.addEventListener('click', () => window.showSection('dashboardOverview'));
+    if (backToDashboardBtn) backToDashboardBtn.addEventListener('click', () => showSection('dashboardOverview'));
     if (changePasswordLink) changePasswordLink.addEventListener('click', handleChangePassword);
 };
 
-// Funcoes auxiliares para profile.js
+// Funções auxiliares para profile.js (definidas globalmente para serem acessíveis)
 async function loadProfileData(uid) {
     if (profileMessage) showMessage(profileMessage, '', '');
     try {
@@ -404,7 +404,7 @@ async function loadProfileData(uid) {
                     if (logoStatus) logoStatus.textContent = 'Nenhuma logo enviada ainda.';
                 }
             }
-        } else { console.log('Documento de usuario nao encontrado no Firestore.'); }
+        } else { console.log('Documento de usuário não encontrado no Firestore.'); }
     } catch (error) {
         console.error('Erro ao carregar dados do perfil:', error);
         if (profileMessage) showMessage(profileMessage, 'Erro ao carregar dados do perfil.', 'error');
@@ -414,10 +414,10 @@ async function loadProfileData(uid) {
 async function handleProfileFormSubmit(event) {
     event.preventDefault();
     if (!currentUser) {
-        if (profileMessage) showMessage(profileMessage, 'Nenhum usuario logado para salvar o perfil.', 'error');
+        if (profileMessage) showMessage(profileMessage, 'Nenhum usuário logado para salvar o perfil.', 'error');
         return;
     }
-    if (profileMessage) showMessage(profileMessage, '', '');
+    if (profileMessage) showMessage(profileMessage, '', ''); // Reseta mensagens
     const dataToUpdate = {
         username: usernameInput.value, companyName: companyNameInput.value, cnpj: cnpjInput.value,
         companyAddress: companyAddressInput.value, companyPhone: companyPhoneInput.value,
@@ -428,7 +428,7 @@ async function handleProfileFormSubmit(event) {
             const file = companyLogoInput.files[0];
             const maxFileSize = 2 * 1024 * 1024;
             if (file.size > maxFileSize) {
-                if (profileMessage) showMessage(profileMessage, 'Erro: O arquivo da logo é muito grande (max 2MB).', 'error');
+                if (profileMessage) showMessage(profileMessage, 'Erro: O arquivo da logo é muito grande (máx 2MB).', 'error');
                 return;
             }
             if (logoStatus) logoStatus.textContent = 'Fazendo upload da logo...';
@@ -505,18 +505,18 @@ async function handleChangePassword(e) {
     if (currentUser && currentUser.email) {
         try {
             await auth.sendPasswordResetEmail(currentUser.email);
-            alert('Um e-mail de redefinicao de senha foi enviado para ' + currentUser.email + '. Por favor, verifique sua caixa de entrada.');
+            alert('Um e-mail de redefinição de senha foi enviado para ' + currentUser.email + '. Por favor, verifique sua caixa de entrada.');
         } catch (error) {
-            console.error('Erro ao enviar e-mail de redefinicao:', error);
-            alert('Erro ao enviar e-mail de redefinicao. Tente novamente mais tarde.');
+            console.error('Erro ao enviar e-mail de redefinição:', error);
+            alert('Erro ao enviar e-mail de redefinição. Tente novamente mais tarde.');
         }
     } else {
-        alert('Nao foi possivel enviar o e-mail de redefinicao. Por favor, faca login novamente.');
+        alert('Não foi possível enviar o e-mail de redefinição. Por favor, faça login novamente.');
     }
 }
 
 
-// --- Funcoes de Inicializacao para public/manage-services.js ---
+// --- Funções de Inicialização para public/manage-services.js ---
 window.initManageServicesPage = async function(user, firestoreDb, firebaseAuth) {
     currentUser = user;
     db = firestoreDb;
@@ -554,7 +554,7 @@ window.initManageServicesPage = async function(user, firestoreDb, firebaseAuth) 
     predefinedResultsDiv = document.getElementById('predefinedResults');
     noPredefinedItemsMessage = document.getElementById('noPredefinedItemsMessage');
 
-    // Remove listeners antigos para evitar duplicacao
+    // Remove listeners antigos para evitar duplicação
     if (tabsContainer) tabButtons.forEach(button => button.removeEventListener('click', handleTabClick));
     if (serviceForm) serviceForm.removeEventListener('submit', handleServiceFormSubmit);
     if (servicesList) servicesList.removeEventListener('click', handleServiceListClick);
@@ -592,10 +592,10 @@ window.initManageServicesPage = async function(user, firestoreDb, firebaseAuth) 
     }
 };
 
-// Funcoes auxiliares para manage-services.js (todas marcadas como async se usam await)
+// Funções auxiliares para manage-services.js (todas marcadas como async se usam await)
 async function loadServices(uid) {
     if (!servicesList) return;
-    servicesList.innerHTML = '<tr><td colspan="4" class="text-center text-muted">Carregando servicos...</td></tr>';
+    servicesList.innerHTML = '<tr><td colspan="4" class="text-center text-muted">Carregando serviços...</td></tr>';
     if (noServicesMessage) noServicesMessage.style.display = 'none';
 
     try {
@@ -618,8 +618,8 @@ async function loadServices(uid) {
             });
         }
     } catch (error) {
-        console.error('Erro ao carregar servicos:', error);
-        if (serviceMessage) showMessage(serviceMessage, 'Erro ao carregar servicos.', 'error');
+        console.error('Erro ao carregar serviços:', error);
+        if (serviceMessage) showMessage(serviceMessage, 'Erro ao carregar serviços.', 'error');
         servicesList.innerHTML = '<tr><td colspan="4" class="text-center text-muted">Erro ao carregar.</td></tr>';
     }
 }
@@ -633,23 +633,23 @@ async function handleServiceFormSubmit(e) {
     const unit = serviceUnitInput.value;
     const price = parseFloat(servicePriceInput.value);
     if (isNaN(price) || price < 0) {
-        if (serviceMessage) showMessage(serviceMessage, 'Preco invalido. Digite um numero positivo.', 'error');
+        if (serviceMessage) showMessage(serviceMessage, 'Preço inválido. Digite um número positivo.', 'error');
         return;
     }
     try {
         const serviceRef = db.collection('users').doc(currentUser.uid).collection('services');
         if (id) {
             await serviceRef.doc(id).update({ name, description, unit, price, updatedAt: firebase.firestore.FieldValue.serverTimestamp() });
-            if (serviceMessage) showMessage(serviceMessage, 'Servico atualizado com sucesso!', 'success');
+            if (serviceMessage) showMessage(serviceMessage, 'Serviço atualizado com sucesso!', 'success');
         } else {
             await serviceRef.add({ name, description, unit, price, createdAt: firebase.firestore.FieldValue.serverTimestamp() });
-            if (serviceMessage) showMessage(serviceMessage, 'Servico adicionado com sucesso!', 'success');
+            if (serviceMessage) showMessage(serviceMessage, 'Serviço adicionado com sucesso!', 'success');
         }
         serviceForm.reset(); serviceIdInput.value = ''; cancelServiceEditBtn.style.display = 'none';
         loadServices(currentUser.uid);
     } catch (error) {
-        console.error('Erro ao salvar servico:', error);
-        if (serviceMessage) showMessage(serviceMessage, 'Erro ao salvar servico.', 'error');
+        console.error('Erro ao salvar serviço:', error);
+        if (serviceMessage) showMessage(serviceMessage, 'Erro ao salvar serviço.', 'error');
     }
 }
 
@@ -663,19 +663,19 @@ async function handleServiceListClick(e) {
             serviceIdInput.value = id; serviceNameInput.value = service.name;
             serviceDescriptionInput.value = service.description; serviceUnitInput.value = service.unit;
             servicePriceInput.value = service.price; cancelServiceEditBtn.style.display = 'inline-block';
-            if (serviceMessage) showMessage(serviceMessage, 'Editando servico...', 'info');
+            if (serviceMessage) showMessage(serviceMessage, 'Editando serviço...', 'info');
         }
     } else if (e.target.matches('.delete-btn') || e.target.closest('.delete-btn')) {
         const btn = e.target.closest('.delete-btn');
         const id = btn.dataset.id;
-        if (confirm('Tem certeza que deseja excluir este servico?')) {
+        if (confirm('Tem certeza que deseja excluir este serviço?')) {
             try {
                 await db.collection('users').doc(currentUser.uid).collection('services').doc(id).delete();
-                if (serviceMessage) showMessage(serviceMessage, 'Servico excluido com sucesso!', 'success');
+                if (serviceMessage) showMessage(serviceMessage, 'Serviço excluído com sucesso!', 'success');
                 loadServices(currentUser.uid);
             } catch (error) {
-                console.error('Erro ao excluir servico:', error);
-                if (serviceMessage) showMessage(serviceMessage, 'Erro ao excluir servico.', 'error');
+                console.error('Erro ao excluir serviço:', error);
+                if (serviceMessage) showMessage(serviceMessage, 'Erro ao excluir serviço.', 'error');
             }
         }
     }
@@ -725,7 +725,7 @@ async function handleMaterialFormSubmit(e) {
     const unit = materialUnitInput.value;
     const price = parseFloat(materialPriceInput.value);
     if (isNaN(price) || price < 0) {
-        if (materialMessage) showMessage(materialMessage, 'Preco invalido. Digite um numero positivo.', 'error');
+        if (materialMessage) showMessage(materialMessage, 'Preço inválido. Digite um número positivo.', 'error');
         return;
     }
     try {
@@ -822,9 +822,9 @@ window.initCreateQuotationPage = async function(user, firestoreDb, firebaseAuth,
 
     quotationMessage = document.getElementById('quotationMessage');
 
-    currentQuotationItems = []; // Reinicia os itens do orcamento
+    currentQuotationItems = []; // Reinicia os itens do orçamento
 
-    // Remove listeners antigos
+    // Remove listeners antigos para evitar duplicação
     if (predefinedQuoteItemSearchInput) predefinedQuoteItemSearchInput.removeEventListener('input', handlePredefinedQuoteItemSearchInput);
     if (predefinedQuoteResultsDiv) predefinedQuoteResultsDiv.removeEventListener('click', handlePredefinedQuoteResultsClick);
     document.removeEventListener('click', handleDocumentClickToHidePredefinedQuoteResults); 

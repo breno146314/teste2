@@ -40,13 +40,10 @@ const heroDemoBtn = document.getElementById('heroDemoBtn');
 const ctaRegisterBtnPro = document.getElementById('ctaRegisterBtnPro'); // Botão "Quero o Plano Pro!"
 
 // --- Funções Auxiliares Comuns ---
-// Replicadas aqui para garantir que script.js funcione independentemente.
-// Se estas forem globais em um arquivo 'utils.js' futuro, elas podem ser removidas daqui.
 function showMessage(element, msg, type) {
     if (element) {
         element.textContent = msg;
-        // Use classes de alerta do Bootstrap para feedback visual
-        element.className = `alert alert-${type} mt-3 text-center`;
+        element.className = `alert alert-${type} mt-3 text-center`; // Classes Bootstrap
         setTimeout(() => {
             element.textContent = '';
             element.className = 'message text-center mt-3'; // Reverte para a classe base
@@ -92,7 +89,7 @@ registerForm.addEventListener('submit', async function(event) {
         registerForm.reset();
         setTimeout(() => {
             registerModal.hide(); // Fecha o modal Bootstrap de cadastro
-            window.location.href = '/dashboard.html'; // Redireciona para o dashboard
+            window.location.href = '/loading.html'; // Redireciona para o dashboard
         }, 1500); // Um pouco mais de tempo para a mensagem ser lida
 
     } catch (error) {
@@ -127,7 +124,7 @@ loginForm.addEventListener('submit', async function(event) {
         loginForm.reset();
         setTimeout(() => {
             loginModal.hide(); // Fecha o modal Bootstrap de login
-            window.location.href = '/dashboard.html'; // Redireciona para o dashboard
+            window.location.href = '/loading.html'; // Redireciona para o dashboard
         }, 1500); // Um pouco mais de tempo para a mensagem ser lida
 
     } catch (error) {
