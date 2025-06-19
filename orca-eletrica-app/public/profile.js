@@ -1,14 +1,17 @@
 // public/profile.js
 
-// **IMPORTANTE:** Removida a declaração de firebaseConfig aqui.
+// **IMPORTANTE:** Removida a declaração de firebaseConfig aqui (já foi feita antes).
 // O Firebase já é inicializado globalmente por dashboard.js.
 
-// Obtém instâncias dos serviços Firebase (serão reatribuídas pelas instâncias passadas de dashboard.js)
-let auth = firebase.auth(); // Estas variáveis ainda são necessárias
-let db = firebase.firestore();
-let storage = firebase.storage();
+// **CORREÇÃO:** Removidas as declarações de instâncias Firebase aqui.
+// Elas serão passadas como argumentos para window.initProfilePage.
+// let auth = firebase.auth(); // REMOVER ESTA LINHA
+// let db = firebase.firestore(); // REMOVER ESTA LINHA
+// let storage = firebase.storage(); // REMOVER ESTA LINHA
+
 
 // --- Variáveis para Referências a Elementos HTML (serão atribuídas em initProfilePage) ---
+// Declaradas aqui para que todas as funções auxiliares tenham acesso após a inicialização.
 let profileForm = null; let usernameInput = null; let emailInput = null; let companyNameInput = null;
 let cnpjInput = null; let companyAddressInput = null; let companyPhoneInput = null;
 let companyLogoInput = null; let logoPreview = null; let logoStatus = null;
@@ -18,10 +21,9 @@ let loggedInEmailProfileSpan = null; let changePasswordLink = null;
 let currentUser = null; // Variável para armazenar o usuário logado
 
 // --- Funções Auxiliares Comuns (replicadas aqui para que profile.js funcione independentemente) ---
-// Estas funções são tipicamente globais (definidas em dashboard.js)
+// Estas funções são tipicamente globais (definidas em dashboard.js ou um util.js)
 // Mas são incluídas aqui para garantir que profile.js funcione mesmo se acessado diretamente.
-// Se `window.showMessage` e `window.formatCurrency` são garantidos, estas podem ser removidas.
-// Por segurança, vamos mantê-las por enquanto, mas com a prioridade de usar as globais.
+// Usamos a verificação `window.showMessage` e `window.formatCurrency` para usar as globais se existirem.
 function showMessage(element, msg, type) {
     if (window.showMessage && typeof window.showMessage === 'function') {
         window.showMessage(element, msg, type); // Usa a função global se disponível
@@ -47,13 +49,13 @@ function showMessage(element, msg, type) {
 window.initProfilePage = async function(userObj, firestoreDb, firebaseAuth, firebaseStorage) {
     console.log("profile.js: initProfilePage chamada. Obtendo referências de elementos.");
     // Reatribuir as instâncias do Firebase passadas pelo dashboard.js
+    // Isso garante que este script use as mesmas instâncias do dashboard.js.
     currentUser = userObj;
-    db = firestoreDb;
-    auth = firebaseAuth;
-    storage = firebaseStorage;
+    db = firestoreDb; // <<-- db será a instância passada
+    auth = firebaseAuth; // <<-- auth será a instância passada
+    storage = firebaseStorage; // <<-- storage será a instância passada
 
     // --- Obter Referências dos Elementos HTML (APÓS o HTML ser injetado) ---
-    // É crucial re-obter referências a cada vez que a página é carregada dinamicamente
     profileForm = document.getElementById('profileForm');
     usernameInput = document.getElementById('username');
     emailInput = document.getElementById('email');
@@ -70,12 +72,9 @@ window.initProfilePage = async function(userObj, firestoreDb, firebaseAuth, fire
     loggedInEmailProfileSpan = document.getElementById('loggedInEmailProfile');
     changePasswordLink = document.getElementById('changePasswordLink');
 
-    // **DEBBUGING: Verificar se os elementos foram encontrados**
+    // Debugging: Verificar se os elementos foram encontrados
     if (!profileForm) console.error("profile.js: ERRO - profileForm não encontrado!");
-    if (!usernameInput) console.error("profile.js: ERRO - usernameInput não encontrado!");
-    if (!loggedInEmailProfileSpan) console.error("profile.js: ERRO - loggedInEmailProfileSpan não encontrado!");
-    // ... adicione mais checks para outros elementos se precisar de depuração visual
-
+    // ... (adicione mais logs para depuração se precisar)
 
     // Carregar dados do perfil se o usuário estiver logado
     if (currentUser) {
@@ -85,7 +84,7 @@ window.initProfilePage = async function(userObj, firestoreDb, firebaseAuth, fire
         await loadProfileData(currentUser.uid);
     } else {
         console.log('profile.js: Nenhum usuário logado. Redirecionando para login.');
-        window.location.href = '/index.html'; // Redirecionamento de fallback
+        window.location.href = '/index.html';
     }
 
     // --- Re-adicionar Event Listeners (CRÍTICO: Elementos são recriados a cada carga dinâmica) ---
@@ -103,12 +102,13 @@ window.initProfilePage = async function(userObj, firestoreDb, firebaseAuth, fire
 };
 
 // --- Carregar Dados do Perfil do Firestore ---
+// Note que 'db' e 'profileMessage' são acessados aqui e são globais agora (ou passados)
 async function loadProfileData(uid) {
-    if (profileMessage) showMessage(profileMessage, '', ''); // Limpa mensagens anteriores
+    if (profileMessage) showMessage(profileMessage, '', '');
     console.log("profile.js: Tentando carregar dados do usuário UID:", uid);
     try {
         const userDocRef = db.collection('users').doc(uid);
-        const userDoc = await userDocRef.get(); // <<-- ATENÇÃO: ERROS DE PERMISSÃO AQUI PODEM CAUSAR FALHA SILENCIOSA -->>
+        const userDoc = await userDocRef.get();
         
         if (userDoc.exists) {
             console.log("profile.js: Documento do usuário encontrado. Preenchendo campos.");
@@ -121,7 +121,7 @@ async function loadProfileData(uid) {
             if (companyPhoneInput) companyPhoneInput.value = userData.companyPhone || '';
             if (defaultTermsInput) defaultTermsInput.value = userData.defaultTerms || '';
 
-            if (logoPreview) { // Carregar logo da empresa se existir
+            if (logoPreview) {
                 if (userData.logoUrl) {
                     logoPreview.src = userData.logoUrl;
                     logoPreview.style.display = 'block';
@@ -129,7 +129,6 @@ async function loadProfileData(uid) {
                     if (noLogoText) noLogoText.style.display = 'none';
                     if (logoStatus) logoStatus.textContent = 'Logo atual carregada.';
                 } else {
-                    // Se não tiver logo URL no Firestore, mas há uma imagem de placeholder padrão
                     logoPreview.src = 'images/placeholder-logo.png';
                     logoPreview.style.display = 'block';
                     const noLogoText = document.getElementById('noLogoText');
@@ -139,8 +138,6 @@ async function loadProfileData(uid) {
             }
         } else { 
             console.log('profile.js: Documento de usuário não encontrado no Firestore. Iniciando com campos vazios.');
-            // Se o documento não existe (ex: primeiro login após cadastro), campos ficam vazios.
-            // Garante que o preview da logo mostra o placeholder.
             if (logoPreview) logoPreview.src = 'images/placeholder-logo.png';
             const noLogoText = document.getElementById('noLogoText');
             if (noLogoText) noLogoText.style.display = 'block';
@@ -153,6 +150,7 @@ async function loadProfileData(uid) {
 }
 
 // --- Salvar Dados do Perfil ---
+// Note que 'db', 'currentUser', 'profileMessage' são acessados aqui e são globais
 async function handleProfileFormSubmit(event) {
     event.preventDefault();
     if (!currentUser) {
@@ -169,7 +167,6 @@ async function handleProfileFormSubmit(event) {
     };
 
     try {
-        // 1. Upload da Logo (se um novo arquivo foi selecionado)
         if (companyLogoInput && companyLogoInput.files.length > 0) {
             const file = companyLogoInput.files[0];
             const maxFileSize = 2 * 1024 * 1024; // 2MB em bytes
@@ -181,7 +178,7 @@ async function handleProfileFormSubmit(event) {
 
             if (logoStatus) logoStatus.textContent = 'Fazendo upload da logo...';
             console.log("profile.js: Iniciando upload da logo.");
-            const storageRef = storage.ref(`user-logos/${currentUser.uid}/logo.png`); // Caminho no Storage
+            const storageRef = storage.ref(`user-logos/${currentUser.uid}/logo.png`);
             const uploadTask = storageRef.put(file);
 
             uploadTask.on('state_changed', 
@@ -197,20 +194,18 @@ async function handleProfileFormSubmit(event) {
                 async () => {
                     console.log("profile.js: Upload da logo concluído. Obtendo URL.");
                     const downloadURL = await storageRef.getDownloadURL();
-                    dataToUpdate.logoUrl = downloadURL; // Armazenar URL no Firestore
-                    if (logoPreview) logoPreview.src = downloadURL; // Atualizar preview
+                    dataToUpdate.logoUrl = downloadURL;
+                    if (logoPreview) logoPreview.src = downloadURL;
                     if (logoStatus) logoStatus.textContent = 'Logo enviada com sucesso!';
                     
-                    // Salvar dados no Firestore após o upload
                     console.log("profile.js: Atualizando documento de usuário no Firestore após upload.");
-                    await db.collection('users').doc(currentUser.uid).update(dataToUpdate); // <<-- ERRO DE PERMISSÃO AQUI? -->>
+                    await db.collection('users').doc(currentUser.uid).update(dataToUpdate);
                     if (profileMessage) showMessage(profileMessage, 'Perfil atualizado com sucesso!', 'success');
                 }
             );
         } else {
-            // Se nenhuma logo nova foi selecionada, apenas atualiza os outros campos
             console.log("profile.js: Nenhuma logo nova. Apenas atualizando documento de usuário no Firestore.");
-            await db.collection('users').doc(currentUser.uid).update(dataToUpdate); // <<-- ERRO DE PERMISSÃO AQUI? -->>
+            await db.collection('users').doc(currentUser.uid).update(dataToUpdate);
             if (profileMessage) showMessage(profileMessage, 'Perfil atualizado com sucesso!', 'success');
         }
 
@@ -233,8 +228,6 @@ function handleLogoInputChange(event) {
         };
         reader.readAsDataURL(file);
     } else {
-        // Se o usuário desselecionar o arquivo, reverte para a logo salva ou placeholder
-        // Tenta carregar a logo do Firestore novamente se existir
         if (currentUser && currentUser.uid && db) { // Verifica se db está disponível
             db.collection('users').doc(currentUser.uid).get().then(doc => {
                 const userData = doc.data();
@@ -251,7 +244,6 @@ function handleLogoInputChange(event) {
                 if (logoStatus) logoStatus.textContent = 'Nenhuma logo enviada ainda.';
             });
         } else {
-            // Se não há usuário ou db não está disponível, mostra placeholder
             if (logoPreview) logoPreview.src = 'images/placeholder-logo.png';
             if (logoStatus) logoStatus.textContent = 'Nenhuma logo enviada ainda.';
         }
