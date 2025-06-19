@@ -2,7 +2,7 @@
 
 // **IMPORTANTE:** Cole a configuração REAL do seu projeto Firebase aqui!
 const firebaseConfig = {
-    apiKey: "SUA_API_KEY", // SUBSTITUA PELA SUA CHAVE API
+    apiKey: "AIzaSyBvFAdgyg9ns3qo4ENSR0TATy1QdMGfgCI",// SUBSTITUA PELA SUA CHAVE API
     authDomain: "orca-eleltrica.firebaseapp.com",     // SUBSTITUA PELO SEU DOMÍNIO DE AUTENTICAÇÃO
     projectId: "orca-eleltrica",                      // SUBSTITUA PELO SEU ID DE PROJETO
     storageBucket: "orca-eleltrica.firebasestorage.app", // SUBSTITUA PELO SEU STORAGE BUCKET
@@ -14,7 +14,7 @@ const firebaseConfig = {
 // Inicializa o Firebase (garante que está inicializado, mesmo que dashboard.js já tenha feito)
 firebase.initializeApp(firebaseConfig);
 
-// Obtém instâncias dos serviços Firebase
+// Obtém instâncias dos serviços Firebase (inicializadas aqui para garantir acesso local ao script)
 let auth = firebase.auth();
 let db = firebase.firestore();
 let storage = firebase.storage();
@@ -54,12 +54,13 @@ function showMessage(element, msg, type) {
  */
 window.initProfilePage = async function(userObj, firestoreDb, firebaseAuth, firebaseStorage) {
     // Reatribuir as instâncias do Firebase passadas pelo dashboard.js
+    // Isso garante que este script use as mesmas instâncias do dashboard.js.
     currentUser = userObj;
     db = firestoreDb;
     auth = firebaseAuth;
     storage = firebaseStorage;
 
-    // --- Obter Referências dos Elementos HTML (após o HTML ser injetado) ---
+    // --- Obter Referências dos Elementos HTML (APÓS o HTML ser injetado) ---
     // É crucial re-obter referências a cada vez que a página é carregada dinamicamente
     profileForm = document.getElementById('profileForm');
     usernameInput = document.getElementById('username');
@@ -74,7 +75,7 @@ window.initProfilePage = async function(userObj, firestoreDb, firebaseAuth, fire
     defaultTermsInput = document.getElementById('defaultTerms');
     profileMessage = document.getElementById('profileMessage');
     backToDashboardBtn = document.getElementById('backToDashboard');
-    loggedInEmailProfileSpan = document.getElementById('loggedInEmailProfile'); // ID atualizado no HTML
+    loggedInEmailProfileSpan = document.getElementById('loggedInEmailProfile');
     changePasswordLink = document.getElementById('changePasswordLink');
 
     // Carregar dados do perfil se o usuário estiver logado
@@ -90,6 +91,13 @@ window.initProfilePage = async function(userObj, firestoreDb, firebaseAuth, fire
     }
 
     // --- Re-adicionar Event Listeners (CRÍTICO: Elementos são recriados a cada carga dinâmica) ---
+    // Remover listeners antigos antes de adicionar novos para evitar duplicação.
+    if (profileForm) profileForm.removeEventListener('submit', handleProfileFormSubmit);
+    if (companyLogoInput) companyLogoInput.removeEventListener('change', handleLogoInputChange);
+    if (backToDashboardBtn) backToDashboardBtn.removeEventListener('click', () => window.showSection('dashboardOverview'));
+    if (changePasswordLink) changePasswordLink.removeEventListener('click', handleChangePassword);
+
+    // Adiciona os event listeners
     if (profileForm) profileForm.addEventListener('submit', handleProfileFormSubmit);
     if (companyLogoInput) companyLogoInput.addEventListener('change', handleLogoInputChange);
     if (backToDashboardBtn) backToDashboardBtn.addEventListener('click', () => window.showSection('dashboardOverview'));
@@ -98,7 +106,7 @@ window.initProfilePage = async function(userObj, firestoreDb, firebaseAuth, fire
 
 // --- Carregar Dados do Perfil do Firestore ---
 async function loadProfileData(uid) {
-    if (profileMessage) showMessage(profileMessage, '', ''); // Limpa mensagens anteriores
+    if (profileMessage) showMessage(profileMessage, '', '');
     try {
         const userDocRef = db.collection('users').doc(uid);
         const userDoc = await userDocRef.get();
@@ -112,7 +120,7 @@ async function loadProfileData(uid) {
             if (companyPhoneInput) companyPhoneInput.value = userData.companyPhone || '';
             if (defaultTermsInput) defaultTermsInput.value = userData.defaultTerms || '';
 
-            if (logoPreview) { // Carregar logo da empresa se existir
+            if (logoPreview) {
                 if (userData.logoUrl) {
                     logoPreview.src = userData.logoUrl;
                     logoPreview.style.display = 'block';
@@ -151,7 +159,6 @@ async function handleProfileFormSubmit(event) {
     };
 
     try {
-        // 1. Upload da Logo (se um novo arquivo foi selecionado)
         if (companyLogoInput && companyLogoInput.files.length > 0) {
             const file = companyLogoInput.files[0];
             const maxFileSize = 2 * 1024 * 1024; // 2MB em bytes
@@ -165,7 +172,6 @@ async function handleProfileFormSubmit(event) {
             const storageRef = storage.ref(`user-logos/${currentUser.uid}/logo.png`); // Caminho no Storage
             const uploadTask = storageRef.put(file);
 
-            // Monitore o progresso do upload (opcional)
             uploadTask.on('state_changed', 
                 (snapshot) => {
                     const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
@@ -177,19 +183,15 @@ async function handleProfileFormSubmit(event) {
                     if (profileMessage) showMessage(profileMessage, 'Erro ao fazer upload da logo.', 'error');
                 }, 
                 async () => {
-                    // Upload completo, obter URL de download
                     const downloadURL = await storageRef.getDownloadURL();
-                    dataToUpdate.logoUrl = downloadURL; // Armazenar URL no Firestore
-                    if (logoPreview) logoPreview.src = downloadURL; // Atualizar preview
+                    dataToUpdate.logoUrl = downloadURL;
+                    if (logoPreview) logoPreview.src = downloadURL;
                     if (logoStatus) logoStatus.textContent = 'Logo enviada com sucesso!';
-                    
-                    // Salvar dados no Firestore após o upload
                     await db.collection('users').doc(currentUser.uid).update(dataToUpdate);
                     if (profileMessage) showMessage(profileMessage, 'Perfil atualizado com sucesso!', 'success');
                 }
             );
         } else {
-            // Se nenhuma logo nova foi selecionada, apenas atualiza os outros campos
             await db.collection('users').doc(currentUser.uid).update(dataToUpdate);
             if (profileMessage) showMessage(profileMessage, 'Perfil atualizado com sucesso!', 'success');
         }
@@ -213,7 +215,6 @@ function handleLogoInputChange(event) {
         };
         reader.readAsDataURL(file);
     } else {
-        // Se o usuário desselecionar o arquivo, reverte para a logo salva ou placeholder
         if (currentUser && currentUser.uid) {
             db.collection('users').doc(currentUser.uid).get().then(doc => {
                 const userData = doc.data();
